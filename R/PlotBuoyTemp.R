@@ -5,13 +5,15 @@
 TempHeatTS<-function (LTERdf){
   
   depths = unique(LTERdf$depth)
-  dates = unique(LTERdf$sampledate)
+  dates = seq(min(LTERdf$sampledate), max(LTERdf$sampledate), by='days')
   
   #Make Matrix of temperature (x=depth, y=date, z=temp)
   wrt<-matrix(ncol=length(depths), nrow=length(dates))
   for (i in 1:length(dates)){
     for (j in 1:length(depths)){
-      wrt[i,j]<-LTERdf$wtemp[LTERdf$depth==depths[j] & LTERdf$sampledate==dates[i]]
+      if (length(LTERdf$wtemp[LTERdf$depth==depths[j] & LTERdf$sampledate==dates[i]])==1){
+        wrt[i,j]<-LTERdf$wtemp[LTERdf$depth==depths[j] & LTERdf$sampledate==dates[i]]
+        }
     }
   }
   
