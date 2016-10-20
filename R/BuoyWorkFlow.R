@@ -5,7 +5,7 @@ source("R/ExtractBuoyData.R") #GetBuoyData
 source("R/PlotBuoyTemp.R") # TempHeatTS
 
 #What data do you want (all characters)
-startdate<-"2014-01-31"
+startdate<-"2012-01-31"
 enddate<-"2015-12-31"
 type="Daily"
 
