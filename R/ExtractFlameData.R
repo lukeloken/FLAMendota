@@ -43,3 +43,9 @@ str(merged_summary)
 merged_mean<-merged_summary[merged_summary$Statistic=='Mean',]
 
 plot(merged_mean$Date, merged_mean$TempC, type="b")
+plot(merged_mean$Date, merged_mean$NITRATEM, type="b")
+plot(merged_mean$Date, merged_mean$XCO2Dppm_t, type="b")
+plot(merged_mean$Date, merged_mean$XCH4Dppm_t, type="b")
+plot(merged_mean$Date, merged_mean$BGAPCRFU_t, type="b")
+plot(merged_mean$Date, merged_mean$ChlARFU_t, type="b")
+plot(merged_mean$Date, merged_mean$fDOMRFU_t, type="b")
