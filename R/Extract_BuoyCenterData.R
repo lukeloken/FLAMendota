@@ -32,5 +32,18 @@ Buoy_data<-ME_data[ME_data$Sample.Notes %in% buoy_names,]
 str(Buoy_data)
 
 Buoy_data$DateTime<-as.POSIXct(Buoy_data$DateTime, tz="UTC")
+Buoy_data$Date<-as.Date(Buoy_data$DateTime, tz="UTC")
 
-plot(Buoy_data$DateTime, Buoy_data$XCO2Dppm)
+
+plot(Buoy_data$Date, Buoy_data$XCO2Dppm)
+plot(Buoy_data$Date, Buoy_data$XCH4Dppm)
+
+
+
+
+Buoy_daily = aggregate(Buoy_data, by=list(Buoy_data$Date), FUN=mean )
+
+plot(Buoy_daily$Date, Buoy_daily$XCO2Dppm)
+plot(Buoy_daily$Date, Buoy_daily$XCH4Dppm)
+
+
