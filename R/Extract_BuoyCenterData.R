@@ -42,7 +42,7 @@ plot(Buoy_data$Date, Buoy_data$XCH4Dppm)
 
 
 Buoy_daily = aggregate(Buoy_data, by=list(Buoy_data$Date), FUN=mean )
-
+names(Buoy_daily)[1]<-c('Date')
 plot(Buoy_daily$Date, Buoy_daily$XCO2Dppm)
 plot(Buoy_daily$Date, Buoy_daily$XCH4Dppm)
 
