@@ -90,3 +90,6 @@ plot(merged_mean$Date, merged_mean$ChlARFU_t, type="b")
 plot(merged_mean$Date, merged_mean$fDOMRFU_t, type="b")
 plot(merged_mean$Date, merged_mean$SPCScm_t, type="b")
 plot(merged_mean$Date, merged_mean$ODOmgL, type="b")
+
+points(merged_mean$Date, merged_mean$XCO2Dpp, type="l", col="red")
+points(merged_mean$Date, merged_mean$XCH4Dppm_t, type="l", col="red")
