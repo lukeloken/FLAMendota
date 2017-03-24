@@ -46,4 +46,6 @@ names(Buoy_daily)[1]<-c('Date')
 plot(Buoy_daily$Date, Buoy_daily$XCO2Dppm)
 plot(Buoy_daily$Date, Buoy_daily$XCH4Dppm)
 
+saveRDS(Buoy_daily, file='Data/FlameBuoyMeasurements.rds')
+write.table(Buoy_daily, file='Data/FlameBuoyMeasurements.csv')
 
