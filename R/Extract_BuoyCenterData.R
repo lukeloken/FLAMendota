@@ -1,4 +1,8 @@
-
+# #######################################################################################
+# Code to loop through 'Samples.csv' files and extract all Lake Mendota Buoy Flame Values
+# Directory is dependent on Loken-Desktop
+# Output single file of all Buoy Samples (not aggregated)
+# #######################################################################################
 
 # Load packages
 library(gtools)
@@ -25,6 +29,7 @@ for (dir in directories_ME2016){
   
 }
 
+# Only include Buoy samples
 sites<-unique(ME_data$Sample.Notes )
 buoy_names<-c(sites[grep('Buoy', sites, ignore.case=T)], 'Deep Hole')
 
@@ -35,17 +40,7 @@ Buoy_data$DateTime<-as.POSIXct(Buoy_data$DateTime, tz="UTC")
 Buoy_data$Date<-as.Date(Buoy_data$DateTime, tz="UTC")
 
 
-plot(Buoy_data$Date, Buoy_data$XCO2Dppm)
-plot(Buoy_data$Date, Buoy_data$XCH4Dppm)
-
-
-
-
-Buoy_daily = aggregate(Buoy_data, by=list(Buoy_data$Date), FUN=mean )
-names(Buoy_daily)[1]<-c('Date')
-plot(Buoy_daily$Date, Buoy_daily$XCO2Dppm)
-plot(Buoy_daily$Date, Buoy_daily$XCH4Dppm)
-
-saveRDS(Buoy_daily, file='Data/FlameBuoyMeasurements.rds')
-write.table(Buoy_daily, file='Data/FlameBuoyMeasurements.csv')
+# Save to Git folder
+saveRDS(Buoy_data, file='Data/FlameBuoyMeasurements.rds')
+write.table(Buoy_data, file='Data/FlameBuoyMeasurements.csv')
 
