@@ -43,53 +43,88 @@ rownames(merged_summary)<-c()
 # Prior to 2016-06-29, mu sumbols in col name were converted to 'Angstrom Mu symbol'
 # After 2016-06-29, Run_Flame code converted these names to 'u'
 
-SPC_columns<-names(merged_summary)[grep('SPC', names(merged_summary))]
-ChlA_columns<-names(merged_summary)[grep('ChlA', names(merged_summary))]
-BGA_columns<-names(merged_summary)[grep('BGA', names(merged_summary))]
-RFU_columns<-names(merged_summary)[grep('RFU', names(merged_summary))]
-ChlA_columns<-ChlA_columns[!ChlA_columns %in% RFU_columns] #Remove RFU columns
-BGA_columns<-BGA_columns[!BGA_columns %in% RFU_columns] #Remove RFU columns
+# SPC_columns<-names(merged_summary)[grep('SPC', names(merged_summary))]
+# ChlA_columns<-names(merged_summary)[grep('ChlA', names(merged_summary))]
+# BGA_columns<-names(merged_summary)[grep('BGA', names(merged_summary))]
+# RFU_columns<-names(merged_summary)[grep('RFU', names(merged_summary))]
+# ChlA_columns<-ChlA_columns[!ChlA_columns %in% RFU_columns] #Remove RFU columns
+# BGA_columns<-BGA_columns[!BGA_columns %in% RFU_columns] #Remove RFU columns
+# 
+# SPC_h_columns<-SPC_columns[grep('_h', SPC_columns)]
+# SPC_t_columns<-SPC_columns[grep('_t', SPC_columns)]
+# SPC_RAW_columns<-SPC_columns[!SPC_columns %in% c(SPC_h_columns, SPC_t_columns)]
+# 
+# ChlA_h_columns<-ChlA_columns[grep('_h', ChlA_columns)]
+# ChlA_t_columns<-ChlA_columns[grep('_t', ChlA_columns)]
+# ChlA_RAW_columns<-ChlA_columns[!ChlA_columns %in% c(ChlA_h_columns, ChlA_t_columns)]
+# 
+# BGA_h_columns<-BGA_columns[grep('_h', BGA_columns)]
+# BGA_t_columns<-BGA_columns[grep('_t', BGA_columns)]
+# BGA_RAW_columns<-BGA_columns[!BGA_columns %in% c(BGA_h_columns, BGA_t_columns)]
+# 
+# merged_summary$SPCScm_h<-rowMeans(merged_summary[SPC_h_columns], na.rm=T)
+# merged_summary$SPCScm_t<-rowMeans(merged_summary[SPC_t_columns], na.rm=T)
+# merged_summary$SPCuScm<-rowMeans(merged_summary[SPC_RAW_columns], na.rm=T)
+# 
+# merged_summary$ChlAgL_h<-rowMeans(merged_summary[ChlA_h_columns], na.rm=T)
+# merged_summary$ChlAgL_t<-rowMeans(merged_summary[ChlA_t_columns], na.rm=T)
+# merged_summary$ChlAugL<-rowMeans(merged_summary[ChlA_RAW_columns], na.rm=T)
+# 
+# merged_summary$BGAPCgL_h<-rowMeans(merged_summary[BGA_h_columns], na.rm=T)
+# merged_summary$BGAPCgL_t<-rowMeans(merged_summary[BGA_t_columns], na.rm=T)
+# merged_summary$BGAPCgL<-rowMeans(merged_summary[BGA_RAW_columns], na.rm=T)
+# 
+# head(merged_summary)
+# str(merged_summary)
 
-SPC_h_columns<-SPC_columns[grep('_h', SPC_columns)]
-SPC_t_columns<-SPC_columns[grep('_t', SPC_columns)]
-SPC_RAW_columns<-SPC_columns[!SPC_columns %in% c(SPC_h_columns, SPC_t_columns)]
+CH4_Only<-merged_summary[!is.na(merged_summary$XCH4Dppm_t),]
+CO2_Only<-merged_summary[!is.na(merged_summary$XCO2Dppm_t),]
+NO3_Only<-merged_summary[!is.na(merged_summary$NITRATEM),]
 
-ChlA_h_columns<-ChlA_columns[grep('_h', ChlA_columns)]
-ChlA_t_columns<-ChlA_columns[grep('_t', ChlA_columns)]
-ChlA_RAW_columns<-ChlA_columns[!ChlA_columns %in% c(ChlA_h_columns, ChlA_t_columns)]
+YSIList<-split(merged_summary, merged_summary$Statistic)
+CH4List<-split(CH4_Only, CH4_Only$Statistic)
+CO2List<-split(CO2_Only, CO2_Only$Statistic)
+NO3List<-split(NO3_Only, NO3_Only$Statistic)
 
-BGA_h_columns<-BGA_columns[grep('_h', BGA_columns)]
-BGA_t_columns<-BGA_columns[grep('_t', BGA_columns)]
-BGA_RAW_columns<-BGA_columns[!BGA_columns %in% c(BGA_h_columns, BGA_t_columns)]
 
-merged_summary$SPCScm_h<-rowMeans(merged_summary[SPC_h_columns], na.rm=T)
-merged_summary$SPCScm_t<-rowMeans(merged_summary[SPC_t_columns], na.rm=T)
-merged_summary$SPCuScm<-rowMeans(merged_summary[SPC_RAW_columns], na.rm=T)
+# merged_mean<-merged_summary[merged_summary$Statistic=='Mean',]
+# merged_min<-merged_summary[merged_summary$Statistic=='Min',]
+# merged_q1<-merged_summary[merged_summary$Statistic=='Q1',]
+# merged_median<-merged_summary[merged_summary$Statistic=='Median',]
+# merged_q3<-merged_summary[merged_summary$Statistic=='Q3',]
+# merged_max<-merged_summary[merged_summary$Statistic=='Max',]
+# merged_sd<-merged_summary[merged_summary$Statistic=='sd',]
 
-merged_summary$ChlAgL_h<-rowMeans(merged_summary[ChlA_h_columns], na.rm=T)
-merged_summary$ChlAgL_t<-rowMeans(merged_summary[ChlA_t_columns], na.rm=T)
-merged_summary$ChlAugL<-rowMeans(merged_summary[ChlA_RAW_columns], na.rm=T)
 
-merged_summary$BGAPCgL_h<-rowMeans(merged_summary[BGA_h_columns], na.rm=T)
-merged_summary$BGAPCgL_t<-rowMeans(merged_summary[BGA_t_columns], na.rm=T)
-merged_summary$BGAPCgL<-rowMeans(merged_summary[BGA_RAW_columns], na.rm=T)
+plot(YSIList$Mean$Date, YSIList$Mean$TempC, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$NITRATEM, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$XCO2Dppm_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$CO2St_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$XCH4Dppm_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$CH4St_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$BGAPCRFU_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$ChlARFU_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$fDOMRFU_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$SPCScm_t, type="b")
+plot(YSIList$Mean$Date, YSIList$Mean$ODOmgL, type="b")
 
-head(merged_summary)
-str(merged_summary)
+points(YSIList$Mean$Date, YSIList$Mean$XCO2Dpp, type="l", col="red")
+points(YSIList$Mean$Date, YSIList$Mean$XCH4Dppm_t, type="l", col="red")
 
-merged_mean<-merged_summary[merged_summary$Statistic=='Mean',]
 
-plot(merged_mean$Date, merged_mean$TempC, type="b")
-plot(merged_mean$Date, merged_mean$NITRATEM, type="b")
-plot(merged_mean$Date, merged_mean$XCO2Dppm_t, type="b")
-plot(merged_mean$Date, merged_mean$CO2St_t, type="b")
-plot(merged_mean$Date, merged_mean$XCH4Dppm_t, type="b")
-plot(merged_mean$Date, merged_mean$CH4St_t, type="b")
-plot(merged_mean$Date, merged_mean$BGAPCRFU_t, type="b")
-plot(merged_mean$Date, merged_mean$ChlARFU_t, type="b")
-plot(merged_mean$Date, merged_mean$fDOMRFU_t, type="b")
-plot(merged_mean$Date, merged_mean$SPCScm_t, type="b")
-plot(merged_mean$Date, merged_mean$ODOmgL, type="b")
 
-points(merged_mean$Date, merged_mean$XCO2Dpp, type="l", col="red")
-points(merged_mean$Date, merged_mean$XCH4Dppm_t, type="l", col="red")
+#Methane moving boxplots
+
+ch4_ylim<-range(c(CH4List$Mean$CH4St_t, CH4List$Q1$CH4St_t, CH4List$Q3$CH4St_t), na.rm=T)
+
+plot(CH4List$Mean$Date, CH4List$Mean$CH4St_t, type="n", pch=15, col="darkred", ylim=ch4_ylim)
+
+polyx<-c(CH4List$Q1$Date, rev(CH4List$Q3$Date))
+polyy<-c(CH4List$Q1$CH4St_t, rev(CH4List$Q3$CH4St_t))
+polygon(polyx, polyy, border=NA, col="lightgrey")
+points(CH4List$Median$Date, CH4List$Median$CH4St_t, type="l", pch=15, col="black", lwd=2)
+points(CH4List$Mean$Date, CH4List$Mean$CH4St_t, type="l", pch=15, col="red", lwd=2)
+
+
+
+
