@@ -18,6 +18,7 @@ source("R/PlotBuoyTemp.R") # TempHeatTS
 BuoyData2016<-read.csv(file='Data/MendotaDaily2016.csv', header=T, stringsAsFactors = F)
 BuoyData2016$sampledate<-as.Date(BuoyData2016$sampledate)
 BuoyData2016<-BuoyData2016[BuoyData2016$year4==2016,]
+BuoyData2016<-BuoyData2016[!is.na(BuoyData2016$wtemp),]
 head(BuoyData2016)
 str(BuoyData2016)
 
