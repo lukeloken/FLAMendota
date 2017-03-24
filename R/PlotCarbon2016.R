@@ -64,7 +64,7 @@ xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRLis
 xlabels<-month(xticks, label=TRUE, abbr=T)
 
 ch4_ylim<-range(c(LGRList$Mean$CH4St_t, LGRList$Q1$CH4St_t, LGRList$Q3$CH4St_t, Buoy_daily$ CH4Sat), na.rm=T)
-colors<-c('red', 'black', 'grey', 'darkgreen', 'darkgrey')
+colors<-c('red', 'black', 'grey', 'mediumblue', 'darkgrey')
 
 plot(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="n", pch=15, ylim=ch4_ylim/100, ylab="", xlab="", xaxt="n")
 axis(1, at=xticks, labels=NA)
@@ -108,7 +108,6 @@ xlabels<-month(xticks, label=TRUE, abbr=T)
 
 co2_ylim<-range(c(LGRList$Mean$CO2St_t, LGRList$Q1$CO2St_t, LGRList$Q3$CO2St_t, Buoy_daily$CO2Sat), na.rm=T)
 # co2_ylim[2]<-150
-colors<-c('red', 'black', 'grey', 'darkgreen', 'darkgrey')
 
 plot(LGRList$Mean$Date, LGRList$Mean$CO2St_t/100, type="n", pch=15, ylim=co2_ylim/100, ylab="", xlab="", xaxt="n")
 axis(1, at=xticks, labels=NA)
