@@ -4,7 +4,7 @@
 library(tidyr)
 library(gtools)
 
-TempHeatTS<-function (LTERdf){
+TempHeatTS<-function (LTERdf, ticks, labels){
   
   depths = unique(LTERdf$depth)
   dates = seq(min(LTERdf$sampledate), max(LTERdf$sampledate), by='days')
@@ -16,6 +16,8 @@ TempHeatTS<-function (LTERdf){
   wrt<-as.matrix(wrt2[,-1])
   
   #Plot
-  filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depths (m)")
+  # filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)")
+  
+  filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=ticks, labels=labels); axis(2) })
   
 }
