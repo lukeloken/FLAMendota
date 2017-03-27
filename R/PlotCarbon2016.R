@@ -3,7 +3,7 @@
 # ##########################################
 
 # ################
-# Buoy Data
+# Flame Buoy Data
 # ################
 
 # Get 'buoy' data from flame
@@ -13,9 +13,22 @@ Buoy_data<-readRDS('Data/FlameBuoyMeasurements.rds')
 Buoy_daily = aggregate(Buoy_data, by=list(Buoy_data$Date), FUN=mean, na.rm=T)
 names(Buoy_daily)[1]<-c('Date')
 
+# ################
+# David Buoy Turner CO2 sensor
+# ################
+
+DavidBuoy<-read.table('Data/mendotabuoy_co2par2016.txt', sep=",")
+names(DavidBuoy)<-c('Date', 'Time_UTC', 'CO2_ppm', 'Par_above', 'Par_below')
+
+DavidBuoy$DateTime<-as.POSIXct(paste(DavidBuoy$Date, DavidBuoy$Time_UTC), format="%Y-%m-%d %H%M", tz='UTC')
+
+#Calculate mean Daily CO2
+DavidBuoyDaily<-aggregate(DavidBuoy[,3:5], by=list(DavidBuoy$Date), FUN='mean', na.rm=T)
+names(DavidBuoyDaily)[1]<-'Date'
+
 
 # ################
-# Lake wide Data
+# Lake wide Flame Data
 # ################
 
 # Get table of spatial summaries for all flame runs on Lake Mendota
@@ -64,7 +77,7 @@ xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRLis
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
 
 ch4_ylim<-range(c(LGRList$Mean$CH4St_t, LGRList$Q1$CH4St_t, LGRList$Q3$CH4St_t, Buoy_daily$ CH4Sat), na.rm=T)
-colors<-c('red', 'black', 'grey', 'mediumblue', 'darkgrey')
+colors<-c('red', 'black', 'grey', 'mediumblue', 'darkgrey', 'mediumblue')
 
 plot(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="n", pch=15, ylim=ch4_ylim/100, ylab="", xlab="", xaxt="n")
 axis(1, at=xticks, labels=xlabels)
@@ -129,6 +142,50 @@ points(LGRList$Mean$Date, LGRList$Mean$CO2St_t/100, type="l", col=colors[1], lwd
 points(Buoy_daily$Date, Buoy_daily$CO2Sat/100, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
 legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+
+dev.off()
+
+
+
+# Other units
+# Carbon Dioxide (ppm)
+# Code plots a polygon of IQR across entire lake surface, mean, median, and buoy
+
+png('Figures/CarbonDioxidePPM2016.png', width=8, height=4, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(1,1))
+par(mar = c(3,3.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+par(lend=2)
+
+xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRList$Mean$Date), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+co2_ylim<-range(c(LGRList$Mean$XCO2Dppm_t, LGRList$Q1$XCO2Dppm_t, LGRList$Q3$XCO2Dppm_t, Buoy_daily$XCO2Dppm_tau, DavidBuoyDaily$CO2_ppm), na.rm=T)
+# co2_ylim[2]<-150
+
+plot(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="n", pch=15, ylim=co2_ylim, ylab="", xlab="", xaxt="n")
+axis(1, at=xticks, labels=xlabels)
+
+mtext(expression(paste(CO[2], " (ppm)", sep="")), 2, 2)
+mtext('2016', 1, 1.5)
+
+# Polygon of IQR
+polyx<-c(LGRList$Q1$Date, rev(LGRList$Q3$Date))
+polyy<-c(LGRList$Q1$XCO2Dppm_t, rev(LGRList$Q3$XCO2Dppm_t))
+polygon(polyx, polyy, border=colors[5], col=colors[3])
+
+# Mean and Median
+points(LGRList$Median$Date, LGRList$Median$XCO2Dppm_t, type="l", col=colors[2], lwd=2)
+points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=2)
+
+#Buoy
+points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
+
+legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Flame at Buoy', 'Buoy'), col=colors, lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
+
+points(as.Date(DavidBuoyDaily$Date), DavidBuoyDaily$CO2_ppm, type="l")
+
 
 dev.off()
 
