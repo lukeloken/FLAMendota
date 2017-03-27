@@ -17,14 +17,15 @@ names(Buoy_daily)[1]<-c('Date')
 # David Buoy Turner CO2 sensor
 # ################
 
-DavidBuoy<-read.table('Data/mendotabuoy_co2par2016.txt', sep=",")
+DavidBuoy<-read.table('Data/mendotabuoy_co2par2016.txt', sep=",", stringsAsFactors = F)
 names(DavidBuoy)<-c('Date', 'Time_UTC', 'CO2_ppm', 'Par_above', 'Par_below')
-
+DavidBuoy$Date<-as.Date(DavidBuoy$Date)
 DavidBuoy$DateTime<-as.POSIXct(paste(DavidBuoy$Date, DavidBuoy$Time_UTC), format="%Y-%m-%d %H%M", tz='UTC')
 
 #Calculate mean Daily CO2
 DavidBuoyDaily<-aggregate(DavidBuoy[,3:5], by=list(DavidBuoy$Date), FUN='mean', na.rm=T)
 names(DavidBuoyDaily)[1]<-'Date'
+DavidBuoyDaily$Date<-as.Date(DavidBuoyDaily$Date)
 
 
 # ################
@@ -77,7 +78,7 @@ xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRLis
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
 
 ch4_ylim<-range(c(LGRList$Mean$CH4St_t, LGRList$Q1$CH4St_t, LGRList$Q3$CH4St_t, Buoy_daily$ CH4Sat), na.rm=T)
-colors<-c('red', 'black', 'grey', 'mediumblue', 'darkgrey', 'mediumblue')
+colors<-c('red', 'black', 'grey', 'mediumblue', 'darkgrey')
 
 plot(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="n", pch=15, ylim=ch4_ylim/100, ylab="", xlab="", xaxt="n")
 axis(1, at=xticks, labels=xlabels)
@@ -182,10 +183,10 @@ points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Flame at Buoy', 'Buoy'), col=colors, lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
+legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Flame at buoy', 'Daily mean buoy'), col=c(colors[1:4], 'black'), lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
 
-points(as.Date(DavidBuoyDaily$Date), DavidBuoyDaily$CO2_ppm, type="l")
-
+points(DavidBuoy$Date, DavidBuoy$CO2_ppm, type="p", pch=16, cex=.1, col=colors[5])
+points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1)
 
 dev.off()
 
