@@ -23,10 +23,13 @@ for (dir in directories_ME2016){
   file<-subdir_files[grep('_Samples.csv', subdir_files)]
   
   if (length(file)==1){
-  data1<-read.csv(paste(subdir, file, sep="/"), header=T, stringsAsFactors = F)
-  ME_data<-smartbind(ME_data, data1, fill=NA)
+    data1<-read.csv(paste(subdir, file, sep="/"), header=T, stringsAsFactors = F)
+    
+    if (nrow(ME_data)==0){
+      ME_data<-data1}
+    else {
+      ME_data<-smartbind(ME_data, data1, fill=NA)}
   }
-  
 }
 
 # Only include Buoy samples
