@@ -16,12 +16,31 @@ str(SurfaceBuoyData2016)
 
 plot(SurfaceBuoyData2016$datetime, SurfaceBuoyData2016$avg_wind_dir, type="l")
 
-split_dates<-as.Date(c('2016-10-28', '2016-11-01'))
+
+
+#Plot Wind rose for entire summer
+
+png('Figures/WindRose2016.png', width=4, height=5, units='in', res=200, bg='white')
+
+par(mar = c(0,0.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+
+windRose(SurfaceBuoyData2016, ws="avg_wind_speed", wd="avg_wind_dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=5, lty=5, col="gray"), offset=4)
+
+dev.off()
+
+
+
+split_dates<-as.Date(c('2016-07-18', '2016-07-21'))
 split_data<-subset(SurfaceBuoyData2016, sampledate>=split_dates[1] & sampledate<=split_dates[2])
 
 
+png(paste('Figures/WindRose', split_dates[2], '.png', sep=""), width=4, height=5, units='in', res=200, bg='white')
 
-windRose(split_data, ws="avg_wind_speed", wd="avg_wind_dir", cols='jet', paddle=F, auto.text=F)
+par(mar = c(0,0.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+
+windRose(split_data, ws="avg_wind_speed", wd="avg_wind_dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=10, lty=5, col="gray"), offset=4)
+
+dev.off()
 
 
 
