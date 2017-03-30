@@ -99,7 +99,7 @@ points(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="l", col=colors[1], lwd
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$CH4Sat/100, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
 
 dev.off()
 
@@ -142,7 +142,7 @@ points(LGRList$Mean$Date, LGRList$Mean$CO2St_t/100, type="l", col=colors[1], lwd
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$CO2Sat/100, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
 
 dev.off()
 
@@ -183,7 +183,7 @@ points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('topleft', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Flame at buoy', 'Daily mean buoy'), col=c(colors[1:4], 'black'), lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
+legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Flame at buoy', 'Daily mean buoy'), col=c(colors[1:4], 'black'), lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
 
 points(DavidBuoy$Date, DavidBuoy$CO2_ppm, type="p", pch=16, cex=.1, col=colors[5])
 points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1)

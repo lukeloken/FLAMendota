@@ -84,7 +84,7 @@ points(YSIList$Mean$Date, YSIList$Mean$ChlAgL_t, type="l", col=colors[1], lwd=2)
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$ChlAugL_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('topright', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+legend('topright', inset=0.01, c('Mean', 'Median', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
 
 dev.off()
 
@@ -126,7 +126,7 @@ points(YSIList$Mean$Date, YSIList$Mean$BGAPCgL_t, type="l", col=colors[1], lwd=2
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$BGAPCugL_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('top', inset=0.01, c('Mean', 'Meidan', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+legend('top', inset=0.01, c('Mean', 'Median', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
 
 dev.off()
 
