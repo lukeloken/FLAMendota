@@ -2,6 +2,7 @@
 # Code to do.....
 # ##########################################
 library(lubridate)
+source('R/AddAlpha.R')
 
 # ################
 # Flame Buoy Data
@@ -192,6 +193,8 @@ points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1)
 dev.off()
 
 
+
+
 # ##########################################################
 # Linear interpolate between points and calculate concentration for each day
 # output is a dataframe of predicted CO2/CH4 for each day for entire summer (flame sampling window)
@@ -273,41 +276,74 @@ for (row in 1:nrow(All_inter_merge)){
 # Cumulative carbon concentration plots
 # 
 
-png('Figures/CumulativeCO2CH4.png', width=4, height=8, units='in', res=200, bg='white')
+png('Figures/CumulativeCO2CH4.png', width=3.5, height=6, units='in', res=200, bg='white')
 par(pch=16)
 par(ps=12)
 par(mfrow=c(2,1))
-par(mar = c(1,4.5,0.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(mar = c(1,4.5,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
 par(oma=c(2,0,0,0))
 par(lend=2)
-par(lwd=2)
-colors<-c('red', 'blue')
+lwd=c(1,2)
+lty=c(1,3)
+colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
 
 xticks<-seq(ceiling_date(min(All_inter_merge$Date), "months"),floor_date(max(All_inter_merge$Date), "months"), by='months')
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
 
 
 #CO2
-plot(All_inter_merge$Date, All_inter_merge$FCO2cum/100, type="l", axes=F, ylab="", xlab="", col=colors[1])
-points(All_inter_merge$Date, All_inter_merge$BCO2cum/100, type="l", col=colors[2])
+plot(All_inter_merge$Date, All_inter_merge$FCO2cum/100, type="l", axes=F, ylab="", xlab="", col=colors[1], lty=lty[1], lwd=lwd[1])
+points(All_inter_merge$Date, All_inter_merge$BCO2cum/100, type="l", col=colors[1], lty=lty[2], lwd=lwd[2])
 mtext(expression(paste('Cumulative ', CO[2], ' (sat ratio X day)', sep="")), 2, 3)
 axis(2, las=1)
 axis(1, at=xticks, labels=NA)
 box(which='plot')
 
 #CH4
-plot(All_inter_merge$Date, All_inter_merge$FCH4cum/100, type="l", axes=F, ylab="", xlab="", col=colors[1])
-points(All_inter_merge$Date, All_inter_merge$BCH4cum/100, type="l", col=colors[2])
+plot(All_inter_merge$Date, All_inter_merge$FCH4cum/100, type="l", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1])
+points(All_inter_merge$Date, All_inter_merge$BCH4cum/100, type="l", col=colors[2], lty=lty[2], lwd=lwd[2])
 mtext(expression(paste('Cumulative ', CH[4], ' (sat ratio X day)', sep="")), 2, 3)
 axis(2, las=1)
 axis(1, at=xticks, labels=xlabels)
 box(which='plot')
 
-legend('topleft', c('Lake-wide mean', 'Buoy'), col=colors, lty=1, bty="n")
+legend('topleft', c('Lake-wide mean', 'Buoy'), col='black', lty=lty, bty="n", lwd=lwd)
 
 mtext('Date', 1, 1.5)
 
 dev.off()
 
 
+# ##########################################################
+# Scatterplots buoy vs flame mean
+# ##########################################################
+
+png('Figures/ScatterplotBuoyFlameCO2CH4.png', width=4, height=7, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(2,3.5,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(1,0,0,0))
+par(lend=2)
+par(lwd=2)
+lty=c(1,2)
+pt.cex=1.5
+
+color<-add.alpha(c('royalblue4', 'red2'), alpha=0.25)
+co2lim<-range(c(All_inter_merge$CO2Sat_Buoy/100, All_inter_merge$CO2Sat_Flame/100), na.rm=T)
+ch4lim<-range(c(All_inter_merge$CH4Sat_Buoy/100, All_inter_merge$CH4Sat_Flame/100), na.rm=T)
+
+plot(All_inter_merge$CO2Sat_Buoy/100, All_inter_merge$CO2Sat_Flame/100, pch=16, ylab="", xlab="", las=1, ylim=co2lim, xlim=co2lim, col=color[1], cex=pt.cex)
+box(which='plot')
+mtext(expression(paste('Lake-wide mean  ', CO[2], ' (sat ratio)', sep="")), 2, 2)
+mtext(expression(paste('Buoy ', CO[2], ' (sat ratio)', sep="")), 1, 1.5)
+abline(0,1, lty=3, col="black")
+
+plot(All_inter_merge$CH4Sat_Buoy/100, All_inter_merge$CH4Sat_Flame/100, pch=16, ylab="", xlab="", las=1, ylim=ch4lim, xlim=ch4lim, col=color[2], cex=pt.cex)
+box(which='plot')
+abline(0,1, lty=3, col="black")
+mtext(expression(paste('Lake-wide mean  ', CH[4], ' (sat ratio)', sep="")), 2, 2)
+mtext(expression(paste('Buoy ', CH[4], ' (sat ratio)', sep="")), 1, 1.5)
+
+dev.off()
 
