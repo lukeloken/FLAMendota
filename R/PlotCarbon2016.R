@@ -192,3 +192,122 @@ points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1)
 dev.off()
 
 
+# ##########################################################
+# Linear interpolate between points and calculate concentration for each day
+# output is a dataframe of predicted CO2/CH4 for each day for entire summer (flame sampling window)
+# ##########################################################
+
+
+Buoy_daily$Jday<-yday(Buoy_daily$Date)
+
+xo<-c(seq(min(Buoy_daily$Jday, na.rm=T), max(Buoy_daily$Jday, na.rm=T), by=1))
+inter_CH4<-approx(Buoy_daily$Jday, Buoy_daily$CH4Sat, xout=xo, method='linear')
+plot(Buoy_daily$Jday, Buoy_daily$CH4Sat)
+lines(inter_CH4, col="red", type="b", cex=0.5)
+
+Buoy_inter_CH4<-as.data.frame(inter_CH4)
+names(Buoy_inter_CH4)<-c('Jday', 'CH4Sat_Buoy')
+
+inter_CO2<-approx(Buoy_daily$Jday, Buoy_daily$CO2Sat, xout=xo, method='linear')
+plot(Buoy_daily$Jday, Buoy_daily$CO2Sat)
+lines(inter_CO2, col="red", type="b", cex=0.5)
+
+Buoy_inter_CO2<-as.data.frame(inter_CO2)
+names(Buoy_inter_CO2)<-c('Jday', 'CO2Sat_Buoy')
+
+Buoy_inter_merge<-merge(Buoy_inter_CH4, Buoy_inter_CO2, by='Jday', all=T)
+
+
+#Flame Mean
+LGRList$Mean$Jday<-yday(LGRList$Mean$Date)
+
+xo_F<-c(seq(min(LGRList$Mean$Jday, na.rm=T), max(LGRList$Mean$Jday, na.rm=T), by=1))
+
+inter_CH4_F<-approx(LGRList$Mean$Jday, LGRList$Mean$CH4St_t, xout=xo, method='linear')
+plot(LGRList$Mean$Jday, LGRList$Mean$CH4St_t)
+lines(inter_CH4_F, col="red", type="b", cex=0.5)
+
+Flame_inter_CH4<-as.data.frame(inter_CH4_F)
+names(Flame_inter_CH4)<-c('Jday', 'CH4Sat_Flame')
+
+inter_CO2_F<-approx(LGRList$Mean$Jday, LGRList$Mean$CO2St_t, xout=xo, method='linear')
+plot(LGRList$Mean$Jday, LGRList$Mean$CO2St_t)
+lines(inter_CO2_F, col="red", type="b", cex=0.5)
+
+Flame_inter_CO2<-as.data.frame(inter_CO2_F)
+names(Flame_inter_CO2)<-c('Jday', 'CO2Sat_Flame')
+
+Flame_inter_merge<-merge(Flame_inter_CH4, Flame_inter_CO2, by='Jday', all=T)
+
+
+All_inter_merge<-merge(Flame_inter_merge, Buoy_inter_merge, by='Jday', all=T)
+
+All_inter_merge$Date<-as.Date(paste('2016-', All_inter_merge$Jday, sep=""), format="%Y-%j")
+
+plot(All_inter_merge$Jday, All_inter_merge$CH4Sat_Flame-All_inter_merge$CH4Sat_Buoy)
+mean(All_inter_merge$CH4Sat_Flame-All_inter_merge$CH4Sat_Buoy)
+
+
+sum(All_inter_merge$CH4Sat_Flame-All_inter_merge$CH4Sat_Buoy)
+
+mean(All_inter_merge$CH4Sat_Flame-All_inter_merge$CH4Sat_Buoy)
+
+mean(All_inter_merge$CH4Sat_Flame-All_inter_merge$CH4Sat_Buoy)/100
+mean(All_inter_merge$CO2Sat_Flame-All_inter_merge$CO2Sat_Buoy)/100
+
+All_inter_merge$FCH4cum<-NA
+All_inter_merge$BCH4cum<-NA
+All_inter_merge$FCO2cum[row]<-NA
+All_inter_merge$BCO2cum[row]<-NA
+row<-1
+for (row in 1:nrow(All_inter_merge)){
+  All_inter_merge$FCH4cum[row]<-sum(All_inter_merge$CH4Sat_Flame[1:row])
+  All_inter_merge$BCH4cum[row]<-sum(All_inter_merge$CH4Sat_Buoy[1:row])
+  
+  All_inter_merge$FCO2cum[row]<-sum(All_inter_merge$CO2Sat_Flame[1:row])
+  All_inter_merge$BCO2cum[row]<-sum(All_inter_merge$CO2Sat_Buoy[1:row])
+  
+}
+
+
+# Cumulative carbon concentration plots
+# 
+
+png('Figures/CumulativeCO2CH4.png', width=4, height=8, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(1,4.5,0.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(2,0,0,0))
+par(lend=2)
+par(lwd=2)
+colors<-c('red', 'blue')
+
+xticks<-seq(ceiling_date(min(All_inter_merge$Date), "months"),floor_date(max(All_inter_merge$Date), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+#CO2
+plot(All_inter_merge$Date, All_inter_merge$FCO2cum/100, type="l", axes=F, ylab="", xlab="", col=colors[1])
+points(All_inter_merge$Date, All_inter_merge$BCO2cum/100, type="l", col=colors[2])
+mtext(expression(paste('Cumulative ', CO[2], ' (sat ratio X day)', sep="")), 2, 3)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+box(which='plot')
+
+#CH4
+plot(All_inter_merge$Date, All_inter_merge$FCH4cum/100, type="l", axes=F, ylab="", xlab="", col=colors[1])
+points(All_inter_merge$Date, All_inter_merge$BCH4cum/100, type="l", col=colors[2])
+mtext(expression(paste('Cumulative ', CH[4], ' (sat ratio X day)', sep="")), 2, 3)
+axis(2, las=1)
+axis(1, at=xticks, labels=xlabels)
+box(which='plot')
+
+legend('topleft', c('Lake-wide mean', 'Buoy'), col=colors, lty=1, bty="n")
+
+mtext('Date', 1, 1.5)
+
+dev.off()
+
+
+
