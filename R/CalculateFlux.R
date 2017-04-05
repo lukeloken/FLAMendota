@@ -6,7 +6,7 @@ library(LakeMetabolizer)
 
 # wind.scale(wind, height, units) # Function to convert wind speed to U10. 
 # wind.scale(wind data frame..., height, units)
-
+wind.scale.base(4,1)
 
 getSchmidt(temperature=20, gas="CO2")
 
