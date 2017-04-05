@@ -283,9 +283,10 @@ par(mfrow=c(2,1))
 par(mar = c(1,4.5,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
 par(oma=c(2,0,0,0))
 par(lend=2)
-lwd=c(1,2)
-lty=c(1,3)
+lwd=c(1,2,2)
+lty=c(1,2,3)
 colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
+colors[3]<-'darkgrey'
 
 xticks<-seq(ceiling_date(min(All_inter_merge$Date), "months"),floor_date(max(All_inter_merge$Date), "months"), by='months')
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
@@ -298,6 +299,7 @@ mtext(expression(paste('Cumulative ', CO[2], ' (sat ratio X day)', sep="")), 2, 
 axis(2, las=1)
 axis(1, at=xticks, labels=NA)
 box(which='plot')
+lines(x=range(All_inter_merge$Date), y=c(1, length(All_inter_merge$Date)), lty=lty[3], col=colors[3])
 
 #CH4
 plot(All_inter_merge$Date, All_inter_merge$FCH4cum/100, type="l", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1])
@@ -306,6 +308,8 @@ mtext(expression(paste('Cumulative ', CH[4], ' (sat ratio X day)', sep="")), 2, 
 axis(2, las=1)
 axis(1, at=xticks, labels=xlabels)
 box(which='plot')
+lines(x=range(All_inter_merge$Date), y=c(1, length(All_inter_merge$Date)), lty=lty[3], col=colors[3])
+
 
 legend('topleft', c('Lake-wide mean', 'Buoy'), col='black', lty=lty, bty="n", lwd=lwd)
 
