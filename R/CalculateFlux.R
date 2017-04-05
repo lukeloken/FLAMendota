@@ -13,3 +13,5 @@ getSchmidt(temperature=20, gas="CO2")
 # k.vachon(timeseries data, etc...) get gas exchange velocity. Need to check but I believe this is in k600
 
 k600.2.kGAS.base(c(5:15), 20, "CO2")
+k600.2.kGAS.base(c(5:15), 20, "O2")
+k600.2.kGAS.base(c(5:15), 20, "CH4")
