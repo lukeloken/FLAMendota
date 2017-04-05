@@ -30,7 +30,7 @@ dev.off()
 
 
 
-split_dates<-as.Date(c('2016-07-18', '2016-07-21'))
+split_dates<-as.Date(c('2016-09-20', '2016-09-20'))
 split_data<-subset(SurfaceBuoyData2016, sampledate>=split_dates[1] & sampledate<=split_dates[2])
 
 
