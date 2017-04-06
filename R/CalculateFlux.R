@@ -9,10 +9,17 @@ conc_name<-'CH4uM_t'
 K600_name<-'k600'
 gas<-'CH4'
 
-#Convert k600 to k for CO2 at temperature of system. 
-
+#Test names
+spdf<-Mendota_surface_UTM
+temp_name<-"TempC"
+conc_name<-'CO2uM_t'
+K600_name<-'k600'
+gas<-'CO2'
 elevation=257
 atm_conc<-1.91
+
+
+#Still need to figure out how to allow pressure and elevation to be incorporated into gas.at.sat function
 
 SpatailFlux<-function(spdf, conc_name, temp_name, K600_name, gas, ...){
 
@@ -26,7 +33,7 @@ SpatailFlux<-function(spdf, conc_name, temp_name, K600_name, gas, ...){
   kgas<-k600.2.kGAS.base(spdf@data[,c(K600_name)], temp, gas)
   
   # conc.sat is in micromol per liter
-  conc.sat<- gas.at.sat(tempC=temp, gas=gas)
+  conc.sat<- gas.at.sat(tempC=temp, gas=gas, ...)
   
   # flux_out is in mmol per meter squared per day
   # Equation includes conversions: cm/hr to m/d ; micromol/liter to milimol/meter cubed
@@ -34,9 +41,13 @@ SpatailFlux<-function(spdf, conc_name, temp_name, K600_name, gas, ...){
 
   return(flux_out)
   
-
 }
 
+
+flux_test<-SpatailFlux(spdf=Mendota_surface_UTM, conc_name='CO2uM_t', temp_name='TempC', K600_name='k600', gas='CO2', pressure= 1, atm_conc=650)
+
+mean(flux_test)
+18.73573
 mean(flux_out)
 
 spdf$flux_out<-flux_out
@@ -46,7 +57,7 @@ png('Figures/ExampleFlux.png', width=6, height=6, units='in', res=200, bg='white
 par(mfrow=c(1,1))
 par(mar=c(4,4,4,4), oma=c(1,1,1,1))
 
-print(spplot(spdf, zcol='flux_out', cuts=100, colorkey=TRUE, sp.layout=list(Mendota_Base_UTM, col=1, fill=0, lwd=3, lty=1, first=F), cex=1.06, pch=15, main="CH4 Efflux (mmol/m2/day)"))
+print(spplot(spdf, zcol='flux_out', cuts=100, colorkey=TRUE, sp.layout=list(Mendota_Base_UTM, col=1, fill=0, lwd=3, lty=1, first=F), cex=1.06, pch=15, main="CO2 Efflux (mmol/m2/day)"))
 
 dev.off()
 closeAllConnections()
