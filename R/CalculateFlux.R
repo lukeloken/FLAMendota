@@ -22,14 +22,16 @@ SpatailFlux<-function(spdf, conc_name, temp, K600_name, gas){
   conc.sat<- 0.003 # Need to figure this out (based on temperature, pressure)
   
   # flux_out is in mmol per meter squared per day
-  # Equations includes conversions: cm/hr to m/d ; micromol/liter to milimol/meter cubed
+  # Equation includes conversions: cm/hr to m/d ; micromol/liter to milimol/meter cubed
   flux_out<-(conc- conc.sat)*kgas*24/100
 
   return(flux_out)
   
+
 }
 
-  
+mean(flux_out)
+
 
 # wind.scale(wind, height, units) # Function to convert wind speed to U10. 
 # wind.scale(wind data frame..., height, units)
