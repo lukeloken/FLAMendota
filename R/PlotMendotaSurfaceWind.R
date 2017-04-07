@@ -3,6 +3,19 @@
 library(stringr)
 library(openair)
 
+#Load all hourly surface data
+SurfaceBuoyData<-read.csv(file='Data/MendotaBuoySurfaceHourly.csv', header=T, stringsAsFactors = F)
+SurfaceBuoyData$sampledate<-as.Date(SurfaceBuoyData$sampledate)
+# Convert hour to four digit character (pad with zeros)
+SurfaceBuoyData$hour<-str_pad(SurfaceBuoyData$hour, 4, pad = "0")
+SurfaceBuoyData$datetime<-as.POSIXct(paste(SurfaceBuoyData$sampledate, SurfaceBuoyData$hour, sep=" "), format='%Y-%m-%d %H%M')
+head(SurfaceBuoyData)
+str(SurfaceBuoyData)
+
+plot(SurfaceBuoyData$datetime, SurfaceBuoyData$avg_wind_dir, type="l")
+
+windRose(SurfaceBuoyData, ws="avg_wind_speed", wd="avg_wind_dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=5, lty=5, col="gray"), offset=4)
+
 # Load 2016 Surface Buoy Data
 SurfaceBuoyData2016<-read.csv(file='Data/MendotaBuoySurfaceHourly2016.csv', header=T, stringsAsFactors = F)
 
