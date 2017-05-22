@@ -42,6 +42,11 @@ Mendota_Shoreline_UTM <- spTransform(Mendota_Shoreline, CRS(projection))
 sample_dir<-"E:/Dropbox/FLAME_YaharaLakes/Data/2016-10-25_LakeMendota/shapefiles_idw"
 Mendota_surface<-readOGR(sample_dir, "LakeMendota2016-10-25cleaned")
 
+# get the 200m resolution Lake Mendota grid
+grid_dir<-"E:/Dropbox/FLAME/basemaps/shapefiles"
+Mendota_grid<-readOGR(grid_dir, "MendotaPredictGrid2016")
+Mendota_grid@proj4string <- CRS(projection)
+
 # Transform surface data into UTM's. This way distance is in meters (m)
 Mendota_surface_UTM <- spTransform(Mendota_surface, CRS(projection))
 
