@@ -53,7 +53,9 @@ Mendota_surface_UTM <- spTransform(Mendota_surface, CRS(projection))
 
 
 # Test names
-spdf<-Mendota_surface_UTM
+# spdf<-Mendota_surface_UTM
+spdf<-Mendota_grid
+gridded(spdf) <- TRUE
 shoreline<-Mendota_Shoreline_UTM
 fetch_name<-'fetch'
 temp_name<-"TempC"
@@ -82,6 +84,13 @@ summary(spdf$CO2efflux)
 
 
 # Example Figure
+
+#fetch and k600 only
+spplot(spdf, zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
+
+spplot(spdf, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
+
+
 
 p1<-spplot(spdf, zcol='fetch_km', cuts=100, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=0.7, pch=15, main=expression(paste("Fetch distance (km)")))
 
