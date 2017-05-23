@@ -17,39 +17,14 @@ SurfaceBuoyData2016<-SurfaceBuoyData2016[SurfaceBuoyData2016$year4==2016,]
 # Convert hour to four digit character (pad with zeros)
 SurfaceBuoyData2016$hour<-str_pad(SurfaceBuoyData2016$hour, 4, pad = "0")
 SurfaceBuoyData2016$datetime<-as.POSIXct(paste(SurfaceBuoyData2016$sampledate, SurfaceBuoyData2016$hour, sep=" "), format='%Y-%m-%d %H%M')
+
+# Check out data
 head(SurfaceBuoyData2016)
 str(SurfaceBuoyData2016)
-
 plot(SurfaceBuoyData2016$datetime, SurfaceBuoyData2016$avg_wind_dir, type="l")
 
+# Loop through dates and aggregate at the daily
 
-
-#Load all hourly surface data
-# SurfaceBuoyData<-read.csv(file='Data/MendotaBuoySurfaceHourly.csv', header=T, stringsAsFactors = F)
-# SurfaceBuoyData$sampledate<-as.Date(SurfaceBuoyData$sampledate)
-# # Convert hour to four digit character (pad with zeros)
-# SurfaceBuoyData$hour<-str_pad(SurfaceBuoyData$hour, 4, pad = "0")
-# SurfaceBuoyData$datetime<-as.POSIXct(paste(SurfaceBuoyData$sampledate, SurfaceBuoyData$hour, sep=" "), format='%Y-%m-%d %H%M')
-
-# head(SurfaceBuoyData)
-# str(SurfaceBuoyData)
-# 
-# plot(SurfaceBuoyData$datetime, SurfaceBuoyData$avg_wind_dir, type="l")
-
-# SurfaceBuoyData2016<-SurfaceBuoyData[SurfaceBuoyData$year4==2016,]
-
-# windRose(SurfaceBuoyData2016, ws="avg_wind_speed", wd="avg_wind_dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=5, lty=5, col="gray"), offset=4)
-
-
-#Plot Wind rose for entire summer
-
-# png('Figures/WindRose2016.png', width=4, height=5, units='in', res=200, bg='white')
-# 
-# par(mar = c(0,0.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
-# 
-# windRose(SurfaceBuoyData2016, ws="avg_wind_speed", wd="avg_wind_dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=5, lty=5, col="gray"), offset=4)
-# 
-# dev.off()
 daynumbers<-unique(SurfaceBuoyData2016$daynum)
 daynumbers<-daynumbers[order(daynumbers)]
 dailywind<-data.frame(daynumbers)
@@ -91,12 +66,13 @@ for (daynum in daynumbers){
   }
 }
 
-dailywind                                                  
-plot(dailywind$sampledate, dailywind$speed, type="l")
-plot(dailywind$sampledate, dailywind$speedvariance, type="l")
-plot(dailywind$sampledate, dailywind$dir, type="l")
-plot(dailywind$sampledate, dailywind$dirvariance, type="l")
-plot(dailywind$sampledate, dailywind$dirdeviation, type="l")
+# Look at the output
+# dailywind                                                  
+# plot(dailywind$sampledate, dailywind$speed, type="l")
+# plot(dailywind$sampledate, dailywind$speedvariance, type="l")
+# plot(dailywind$sampledate, dailywind$dir, type="l")
+# plot(dailywind$sampledate, dailywind$dirvariance, type="l")
+# plot(dailywind$sampledate, dailywind$dirdeviation, type="l")
 
 # Save to Git folder
 saveRDS(dailywind , file='Data/Dailywind.rds')
