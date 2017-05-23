@@ -51,6 +51,10 @@ Mendota_grid@proj4string <- CRS(projection)
 Mendota_surface_UTM <- spTransform(Mendota_surface, CRS(projection))
 
 
+#New code to branch. Use wind data to calculate fetch and K600 for each day.
+
+
+
 
 # Test names
 # spdf<-Mendota_surface_UTM
