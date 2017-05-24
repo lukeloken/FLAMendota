@@ -3,6 +3,8 @@
 source("R/ExtractBuoyData.R") #GetBuoyData
 source("R/PlotBuoyTemp.R") # TempHeatTS
 
+library(lubridate)
+
 # What data do you want (all characters)
 # This is for downloading buoy data from lter data portal
 # startdate<-"2016-01-01"
