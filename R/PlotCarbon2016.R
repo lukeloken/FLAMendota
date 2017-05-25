@@ -79,8 +79,9 @@ par(lend=2)
 xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRList$Mean$Date), "months"), by='months')
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
 
-ch4_ylim<-range(c(LGRList$Mean$CH4St_t, LGRList$Q1$CH4St_t, LGRList$Q3$CH4St_t, Buoy_daily$ CH4Sat), na.rm=T)
-colors<-c('red', 'black', 'grey', 'mediumblue', 'darkgrey')
+ch4_ylim<-range(c(LGRList$Mean$CH4St_t, LGRList$Q5$CH4St_t, LGRList$Q95$CH4St_t, Buoy_daily$ CH4Sat), na.rm=T)
+colors<-c('red', 'black', 'grey85', 'orangered2', 'grey55')
+buoypch=20
 
 plot(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="n", pch=15, ylim=ch4_ylim/100, ylab="", xlab="", xaxt="n")
 axis(1, at=xticks, labels=xlabels)
@@ -89,19 +90,41 @@ mtext(expression(paste(CH[4], " (Sat ratio)", sep="")), 2, 2)
 mtext('2016', 1, 1.5)
 abline(h=1, lty=3)
 
+# Polygon of 5-95%
+polyx90<-c(LGRList$Q05$Date, rev(LGRList$Q95$Date))
+polyy90<-c(LGRList$Q05$CH4St_t, rev(LGRList$Q95$CH4St_t))
+polygon(polyx90, polyy90/100, border=colors[3], col=colors[3])
+
 # Polygon of IQR
-polyx<-c(LGRList$Q1$Date, rev(LGRList$Q3$Date))
-polyy<-c(LGRList$Q1$CH4St_t, rev(LGRList$Q3$CH4St_t))
-polygon(polyx, polyy/100, border=colors[5], col=colors[3])
+polyx<-c(LGRList$Q25$Date, rev(LGRList$Q75$Date))
+polyy<-c(LGRList$Q25$CH4St_t, rev(LGRList$Q75$CH4St_t))
+polygon(polyx, polyy/100, border=colors[5], col=colors[5])
 
 # Mean and Median
 points(LGRList$Median$Date, LGRList$Median$CH4St_t/100, type="l", col=colors[2], lwd=2)
-points(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="l", col=colors[1], lwd=2)
+# points(LGRList$Mean$Date, LGRList$Mean$CH4St_t/100, type="l", col=colors[1], lwd=2)
 
 #Buoy
-points(Buoy_daily$Date, Buoy_daily$CH4Sat/100, type="o", col=colors[4], pch=16, cex=1, lty=2)
+points(Buoy_daily$Date, Buoy_daily$CH4Sat/100, type="o", col=colors[4], pch=buoypch, cex=1.5, lty=2, lwd=1.5)
 
-legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+usr<-par('usr')
+yscale<-diff(usr[3:4])/10
+box.y<-usr[4]-yscale*seq(0.5,4, length.out=7)
+
+xscale<-diff(usr[1:2])/30
+box.x<-usr[1]+xscale*seq(0.7,2, length.out=2)
+
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[5],2), rep(box.y[1],2)), col=colors[3], border=colors[3], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=colors[5], border=colors[5], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=2)
+
+lines(x=box.x, y=rep(box.y[6], 2), lty=2, col=colors[4], type="l", pch=16, lwd=1.5)
+lines(x=box.x, y=rep(box.y[7], 2), lty=3, type="l")
+points(x=mean(box.x), y=box.y[6], col=colors[4], type="p", pch=buoypch, cex=1.5)
+
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])), expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'Buoy', "Atm"), pos=4)
+
+box(which='plot')
 
 dev.off()
 
@@ -121,8 +144,9 @@ par(lend=2)
 
 xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRList$Mean$Date), "months"), by='months')
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+buoypch<-20
 
-co2_ylim<-range(c(LGRList$Mean$CO2St_t, LGRList$Q1$CO2St_t, LGRList$Q3$CO2St_t, Buoy_daily$CO2Sat), na.rm=T)
+co2_ylim<-range(c(LGRList$Mean$CO2St_t, LGRList$Q5$CO2St_t, LGRList$Q75$CO2St_t, Buoy_daily$CO2Sat), na.rm=T)
 # co2_ylim[2]<-150
 
 plot(LGRList$Mean$Date, LGRList$Mean$CO2St_t/100, type="n", pch=15, ylim=co2_ylim/100, ylab="", xlab="", xaxt="n")
@@ -132,19 +156,41 @@ mtext(expression(paste(CO[2], " (Sat ratio)", sep="")), 2, 2)
 mtext('2016', 1, 1.5)
 abline(h=1, lty=3)
 
+# Polygon of 5-95%
+polyx90<-c(LGRList$Q05$Date, rev(LGRList$Q95$Date))
+polyy90<-c(LGRList$Q05$CO2St_t, rev(LGRList$Q95$CO2St_t))
+polygon(polyx90, polyy90/100, border=colors[3], col=colors[3])
+
 # Polygon of IQR
-polyx<-c(LGRList$Q1$Date, rev(LGRList$Q3$Date))
-polyy<-c(LGRList$Q1$CO2St_t, rev(LGRList$Q3$CO2St_t))
-polygon(polyx, polyy/100, border=colors[5], col=colors[3])
+polyx<-c(LGRList$Q25$Date, rev(LGRList$Q75$Date))
+polyy<-c(LGRList$Q25$CO2St_t, rev(LGRList$Q75$CO2St_t))
+polygon(polyx, polyy/100, border=colors[5], col=colors[5])
 
 # Mean and Median
 points(LGRList$Median$Date, LGRList$Median$CO2St_t/100, type="l", col=colors[2], lwd=2)
-points(LGRList$Mean$Date, LGRList$Mean$CO2St_t/100, type="l", col=colors[1], lwd=2)
+# points(LGRList$Mean$Date, LGRList$Mean$CO2St_t/100, type="l", col=colors[1], lwd=2)
 
 #Buoy
-points(Buoy_daily$Date, Buoy_daily$CO2Sat/100, type="o", col=colors[4], pch=16, cex=1, lty=2)
+points(Buoy_daily$Date, Buoy_daily$CO2Sat/100, type="o", col=colors[4], pch=buoypch, cex=1.5, lty=2, lwd=1.5)
 
-legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Buoy'), col=colors, lty=c(1,1,1,2), pch=c(-1,-1,-1,16), lwd=c(2,2,15,1), pt.cex=c(1,1,1,1), bty="n")
+usr<-par('usr')
+yscale<-diff(usr[3:4])/10
+box.y<-usr[4]-yscale*seq(0.5,4, length.out=7)
+
+xscale<-diff(usr[1:2])/30
+box.x<-usr[1]+xscale*seq(0.7,2, length.out=2)
+
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[5],2), rep(box.y[1],2)), col=colors[3], border=colors[3], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=colors[5], border=colors[5], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=2)
+
+lines(x=box.x, y=rep(box.y[6], 2), lty=2, col=colors[4], type="l", pch=16, lwd=1.5)
+lines(x=box.x, y=rep(box.y[7], 2), lty=3, type="l")
+points(x=mean(box.x), y=box.y[6], col=colors[4], type="p", pch=buoypch, cex=1.5)
+
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])),  expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'Buoy', "Atm"), pos=4)
+
+box(which='plot')
 
 dev.off()
 
@@ -163,8 +209,9 @@ par(lend=2)
 
 xticks<-seq(ceiling_date(min(LGRList$Mean$Date), "months"),floor_date(max(LGRList$Mean$Date), "months"), by='months')
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+turnercolors<-c('aquamarine2', 'aquamarine4')
 
-co2_ylim<-range(c(LGRList$Mean$XCO2Dppm_t, LGRList$Q1$XCO2Dppm_t, LGRList$Q3$XCO2Dppm_t, Buoy_daily$XCO2Dppm_tau, DavidBuoyDaily$CO2_ppm), na.rm=T)
+co2_ylim<-range(abs(c(LGRList$Mean$XCO2Dppm_t, LGRList$Q05$XCO2Dppm_t, LGRList$Q95$XCO2Dppm_t, Buoy_daily$XCO2Dppm_tau, DavidBuoyDaily$CO2_ppm, 0)), na.rm=T)
 # co2_ylim[2]<-150
 
 plot(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="n", pch=15, ylim=co2_ylim, ylab="", xlab="", xaxt="n")
@@ -172,23 +219,54 @@ axis(1, at=xticks, labels=xlabels)
 
 mtext(expression(paste(CO[2], " (ppm)", sep="")), 2, 2)
 mtext('2016', 1, 1.5)
+abline(h=400, lty=3)
+
+# Polygon of 5-95%
+polyx90<-c(LGRList$Q05$Date, rev(LGRList$Q95$Date))
+polyy90<-c(LGRList$Q05$XCO2Dppm_t, rev(LGRList$Q95$XCO2Dppm_t))
+polygon(polyx90, polyy90, border=colors[3], col=colors[3])
 
 # Polygon of IQR
-polyx<-c(LGRList$Q1$Date, rev(LGRList$Q3$Date))
-polyy<-c(LGRList$Q1$XCO2Dppm_t, rev(LGRList$Q3$XCO2Dppm_t))
-polygon(polyx, polyy, border=colors[5], col=colors[3])
+polyx<-c(LGRList$Q25$Date, rev(LGRList$Q75$Date))
+polyy<-c(LGRList$Q25$XCO2Dppm_t, rev(LGRList$Q75$XCO2Dppm_t))
+polygon(polyx, polyy, border=colors[5], col=colors[5])
 
 # Mean and Median
 points(LGRList$Median$Date, LGRList$Median$XCO2Dppm_t, type="l", col=colors[2], lwd=2)
-points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=2)
+# points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=2)
 
 #Buoy
 points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
 
-legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Flame at buoy', 'Daily mean buoy'), col=c(colors[1:4], 'black'), lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
+# legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Flame at buoy', 'Daily mean buoy'), col=c(colors[1:4], 'black'), lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
 
-points(DavidBuoy$Date, DavidBuoy$CO2_ppm, type="p", pch=16, cex=.1, col=colors[5])
-points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1)
+points(DavidBuoy$Date, DavidBuoy$CO2_ppm, type="p", pch=16, cex=.1, col=turnercolors[1])
+points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1, col=turnercolors[2])
+
+
+
+usr<-par('usr')
+yscale<-diff(usr[3:4])/10
+box.y<-usr[4]-yscale*seq(0.5,5, length.out=8)
+
+xscale<-diff(usr[1:2])/30
+box.x<-usr[1]+xscale*seq(0.7,2, length.out=2)
+
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[5],2), rep(box.y[1],2)), col=colors[3], border=colors[3], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=colors[5], border=colors[5], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=2)
+
+lines(x=box.x, y=rep(box.y[6], 2), lty=2, col=colors[4], type="l", pch=16, lwd=1.5)
+points(x=rep(mean(box.x),10), y=box.y[7]+yscale*0.2*seq(-1,1, length.out = 10), type='p', col=turnercolors[1], pch=16, cex=.1)
+lines(x=box.x, y=rep(box.y[7], 2), lty=1, type="l", col=turnercolors[2])
+
+points(x=mean(box.x), y=box.y[6], col=colors[4], type="p", pch=buoypch, cex=1.5)
+
+lines(x=box.x, y=rep(box.y[8], 2), lty=3, type="l")
+
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])),  expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'FLAMe at buoy', "Turner buoy sensor", "Atm"), pos=4)
+
+box(which='plot')
 
 dev.off()
 
