@@ -22,44 +22,123 @@ library(LakeMetabolizer)
 library(rgdal)
 source('R/CalculateSpatialFetch.R')
 source('R/CalculateSpatialk600.R')
-source('R/CalculateGasSaturation.R')
-source('R/CalculateSpatialFlux.R')
+
 
 # ##################
-# Load test data
+# Load data
 # ##################
 
-# Get outline of Lake Mendota
-basemap_dir<-"E:/Dropbox/FLAME/basemaps"
-Mendota_Shoreline<-readOGR(basemap_dir, "Mendota_shape")
+# #####
+# Wind
+# #####
+dailywind <-readRDS('Data/Dailywind.rds')
+
+wind_height=2 # height of anamometer above lake surface
+
+# ############
+# Spatial data
+# ############
 
 # Set UTM projection (Zone 15 for Wisconsin)
 projection <- "+proj=utm +zone=15 ellps=WGS84"
-# Transform lakebase data into UTM's. This way distance is in meters (m)
-Mendota_Shoreline_UTM <- spTransform(Mendota_Shoreline, CRS(projection))
 
-# get a sample idw surface
-sample_dir<-"E:/Dropbox/FLAME_YaharaLakes/Data/2016-10-25_LakeMendota/shapefiles_idw"
-Mendota_surface<-readOGR(sample_dir, "LakeMendota2016-10-25cleaned")
+# Outline of Lake Mendota
+basemap_dir<-"E:/Dropbox/FLAME/basemaps"
+Mendota_Shoreline<-readOGR(basemap_dir, "Mendota_shape")
+# Project into UTM's. This way distance is in meters (m)
+shoreline <- spTransform(Mendota_Shoreline, CRS(projection))
 
 # get the 200m resolution Lake Mendota grid
 grid_dir<-"E:/Dropbox/FLAME/basemaps/shapefiles"
 Mendota_grid<-readOGR(grid_dir, "MendotaPredictGrid2016")
 Mendota_grid@proj4string <- CRS(projection)
-
-# Transform surface data into UTM's. This way distance is in meters (m)
-Mendota_surface_UTM <- spTransform(Mendota_surface, CRS(projection))
+gridded(Mendota_grid)<-T
 
 
+#New loop
+# Go through days and calculate fetch and k based on daily mean wind speed/direction
 
-dailywind_df<-
-
-#New code to branch. Use wind data to calculate fetch and K600 for each day.
-
-for (day in 1:length(dailywind_df)){
-  SpatialFetch(Mendota_grid, wind_dir=wind_dir, shoreline=shoreline, projected=T, dmax=10000)
-
+daynumbers<-dailywind$daynumbers
+Fetch_list<-list()
+day=1
+for (day in 1:length(daynumbers)){
+  daynum<-dailywind$daynumbers[day]
+  wind_speed<-dailywind$speed[day]
+  wind_dir<-dailywind$dir[day]
+  
+  if(!is.na(wind_speed)){
+    # Calculate fetch distance (m and km)
+    Mendota_grid$fetch<-SpatialFetch(Mendota_grid, wind_dir=wind_dir, shoreline=shoreline, projected=T, dmax=10000)
+    Mendota_grid$fetch_km<-Mendota_grid$fetch/1000
+    
+    #Calculate k600 (cm/hr)
+    Mendota_grid$k600<-Spatialk600(Mendota_grid, wind_speed=wind_speed, wind_height=wind_height, fetch_name='fetch')
+    gridded(Mendota_grid)<-T
+    # Plot daily fetch and k600
+    
+    png(paste('Figures/DailyFetchMap2016/daynum', daynum, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+    print(spplot(Mendota_grid, zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F),  main=expression(paste("Fetch distance (km)")), xlab=paste('Day #', daynum, "     Wind direction ", round(wind_dir), ' deg', sep="")))
+    dev.off()
+    
+    png(paste('Figures/DailyK600Map2016/daynum', daynum, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+    print(spplot(Mendota_grid, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")), xlab=paste('Day #', daynum, "     Wind direction ", round(wind_dir), ' deg     Speed ', round(wind_speed, digits=1), " m/s", sep="")))
+    dev.off()
+  }
+  
+  Fetch_list[[day]]<-Mendota_grid
+  
 }
+
+str(Fetch_list)
+
+saveRDS(Fetch_list , file='Data/DailyFetchK600maps.rds')
+
+
+# Loop through daily maps and generate summaries
+probs<-c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
+
+#Build dataframes to populate
+fetch_dataframe<-as.data.frame(matrix(nrow=length(daynumbers), ncol=12))
+names(fetch_dataframe)<-c('Daynum', 'Sampledate', 'Min', 'Mean', 'Max', 'Q05', 'Q10', 'Q25', 'Q50', 'Q75', 'Q90', 'Q95')
+k600_dataframe<-fetch_dataframe
+
+fetch_map<-2
+for (fetch_map in 1:length(Fetch_list)){
+  daynum<-daynumbers[fetch_map]
+  map<-Fetch_list[[fetch_map]]
+  
+  #fetch stats
+  summary_fetch<-summary(map$fetch_km)[c(1,4,6)]
+  quantiles_fetch<-quantile(map$fetch_km, probs=probs, na.rm=T)
+  stats_fetch<-c(summary_fetch, quantiles_fetch)
+  
+  #k600 stats
+  summary_k600<-summary(map$k600)[c(1,4,6)]
+  quantiles_k600<-quantile(map$k600, probs=probs, na.rm=T)
+  stats_k600<-c(summary_k600, quantiles_k600)
+  
+  
+  #Look at data
+  hist(map$fetch_km)
+  summary(map)
+  spplot(map, zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
+  
+  spplot(map, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
+  
+  
+}
+
+
+
+
+
+# Test plots. Looks at last 'day'
+spplot(Fetch_list[[day]], zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
+
+spplot(Fetch_list[[day]], zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
+
+
+# Old Code Below
 
 # Test names
 # spdf<-Mendota_surface_UTM
