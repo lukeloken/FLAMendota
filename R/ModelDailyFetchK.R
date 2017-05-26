@@ -17,6 +17,8 @@
 # k600 (cm/hr)
 # efflux of CO2 and CH4 (mmol/m2/d)
 
+rm(list = ls())
+
 # Load packages and spatial functions
 library(LakeMetabolizer)
 library(rgdal)
@@ -60,7 +62,7 @@ gridded(Mendota_grid)<-T
 
 daynumbers<-dailywind$daynumbers
 Fetch_list<-list()
-day=1
+day=2
 for (day in 1:length(daynumbers)){
   daynum<-dailywind$daynumbers[day]
   wind_speed<-dailywind$speed[day]
@@ -93,6 +95,11 @@ str(Fetch_list)
 
 saveRDS(Fetch_list , file='Data/DailyFetchK600maps.rds')
 
+# Test plots. Looks at last 'day'
+spplot(Fetch_list[[day]], zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
+
+spplot(Fetch_list[[day]], zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
+
 
 # Loop through daily maps and generate summaries
 probs<-c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
@@ -100,6 +107,8 @@ probs<-c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
 #Build dataframes to populate
 fetch_dataframe<-as.data.frame(matrix(nrow=length(daynumbers), ncol=12))
 names(fetch_dataframe)<-c('Daynum', 'Sampledate', 'Min', 'Mean', 'Max', 'Q05', 'Q10', 'Q25', 'Q50', 'Q75', 'Q90', 'Q95')
+fetch_dataframe$Daynum<-daynumbers
+fetch_dataframe$Sampledate<-dailywind$sampledate[match(dailywind$daynumbers,fetch_dataframe$Daynum)]
 k600_dataframe<-fetch_dataframe
 
 fetch_map<-2
@@ -117,25 +126,48 @@ for (fetch_map in 1:length(Fetch_list)){
   quantiles_k600<-quantile(map$k600, probs=probs, na.rm=T)
   stats_k600<-c(summary_k600, quantiles_k600)
   
-  
-  #Look at data
-  hist(map$fetch_km)
-  summary(map)
-  spplot(map, zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
-  
-  spplot(map, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
+  # Output to daily data frames
+  fetch_dataframe[fetch_map,3:12]<-stats_fetch
+  k600_dataframe[fetch_map,3:12]<-stats_k600
+
+  # Look at data
+  # Comment out for processing speed
+#   hist(map$fetch_km)
+#   summary(map)
+#   spplot(map, zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
+#   
+#   spplot(map, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
   
   
 }
 
+# Save to Git folder
+saveRDS(fetch_dataframe , file='Data/DailyFetchStats.rds')
+write.table(fetch_dataframe , file='Data/DailyFetchStats.csv')
+
+saveRDS(fetch_dataframe , file='Data/DailyK600Stats.rds')
+write.table(fetch_dataframe , file='Data/DailyK600Stats.csv')
+
+# ##############################################
+# K model using Lake Area and Wind speed only. 
+# Model B from Vachon and Praire 2013
+# I should put this into the Daily K600 data frame above...
+# ##############################################
 
 
+U10<-wind.scale.base(dailywind$speed, wind_height)
+LA<-39.85 #Lake Mendota area square kilometers
+logLA<-log10(LA)
+
+K600LA<-2.51 + 1.48*U10 + 0.39*U10*logLA
+
+dailywind$K600LA<-K600LA
+
+# Save to Git folder
+saveRDS(dailywind , file='Data/DailywindK600LA.rds')
+write.table(dailywind , file='Data/DailywindK600LA.csv')
 
 
-# Test plots. Looks at last 'day'
-spplot(Fetch_list[[day]], zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
-
-spplot(Fetch_list[[day]], zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
 
 
 # Old Code Below
