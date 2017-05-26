@@ -186,3 +186,13 @@ points(U10, k600_dataframe$K600.VachonLA, pch=16, col="red")
 saveRDS(k600_dataframe , file='Data/DailyK600Stats.rds')
 write.table(k600_dataframe , file='Data/DailyK600Stats.csv')
 
+
+png('Figures/K600boxplotAmongModels.png', width=5, height=3, units='in', res=200, bg='white')
+par(mar=c(2,3,1,1))
+par(mgp=c(1.5,0.6,0),tck=-0.02)
+par(ps=10)
+
+boxplot(c(k600_dataframe[c('Mean', 'K600.VachonLA', 'K600.Cole',  'K600.Crusius')]), names=c('Vachon Fetch', 'Vachon LA', 'Cole', 'Crusius'),ylab=expression(paste(k[600], ' (cm hr'^'-1', ')')), col='grey60', las=1, boxwex=.5, cex=.7)
+
+dev.off()
+
