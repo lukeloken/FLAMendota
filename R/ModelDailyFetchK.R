@@ -35,7 +35,7 @@ source('R/CalculateSpatialk600.R')
 # #####
 dailywind <-readRDS('Data/Dailywind.rds')
 
-wind_height=2 # height of anamometer above lake surface
+wind_height=2.2 # height of anamometer above lake surface
 
 # ############
 # Spatial data
@@ -141,98 +141,48 @@ for (fetch_map in 1:length(Fetch_list)){
   
 }
 
-# Save to Git folder
+# Save fetch stats to Git folder
 saveRDS(fetch_dataframe , file='Data/DailyFetchStats.rds')
 write.table(fetch_dataframe , file='Data/DailyFetchStats.csv')
-
-saveRDS(fetch_dataframe , file='Data/DailyK600Stats.rds')
-write.table(fetch_dataframe , file='Data/DailyK600Stats.csv')
 
 # ##############################################
 # K model using Lake Area and Wind speed only. 
 # Model B from Vachon and Praire 2013
 # I should put this into the Daily K600 data frame above...
+# Also can use lake metabolizer (k.vachon.base)
 # ##############################################
 
 
 U10<-wind.scale.base(dailywind$speed, wind_height)
-LA<-39.85 #Lake Mendota area square kilometers
-logLA<-log10(LA)
+LA<-39850000 #Lake Mendota area square meters
 
-K600LA<-2.51 + 1.48*U10 + 0.39*U10*logLA
+k600_dataframe
 
-dailywind$K600LA<-K600LA
+# Calculate K600 using Lake Metablizer (Vachon Lake area model, Cole model, and Crusius Model)
+# These K600 values are in cm/hr. 
+k600_dataframe$K600.VachonLA<-k.vachon.base(U10, lake.area=LA, params=c(2.51,1.48,0.39))*100/24
+k600_dataframe$K600.Cole<-k.cole.base(U10)*100/24
+k600_dataframe$K600.Crusius<-k.crusius.base(U10)*100/24
 
-# Save to Git folder
-saveRDS(dailywind , file='Data/DailywindK600LA.rds')
-write.table(dailywind , file='Data/DailywindK600LA.csv')
+#Compare spatially explict k models to Vachon's Lake Area based model
+plot(k600_dataframe$Mean, k600_dataframe$K600.VachonLA)
+points(k600_dataframe$Q50, k600_dataframe$K600.VachonLA, col="red")
+abline(0,1)
 
+#Compare spatially explict k models to Cole's model
+plot(k600_dataframe$Mean, K600.Cole)
+points(k600_dataframe$Q50, K600.Cole, col="red")
+abline(0,1)
 
+#Compare spatially explict k models to Vachon's Lake Area based model
+plot(k600_dataframe$Mean, K600.Crusius)
+points(k600_dataframe$Q50, K600.Crusius, col="red")
+abline(0,1)
 
+plot(U10, k600_dataframe$Mean, pch=16)
+points(U10, k600_dataframe$K600.VachonLA, pch=16, col="red")
 
-# Old Code Below
-
-# Test names
-# spdf<-Mendota_surface_UTM
-spdf<-Mendota_grid
-gridded(spdf) <- TRUE
-shoreline<-Mendota_Shoreline_UTM
-fetch_name<-'fetch'
-temp_name<-"TempC"
-conc_name<-'CO2uM_t'
-K600_name<-'k600'
-elevation=257 #Mendota
-wind_speed=4 #test variables
-wind_height=2
-wind_dir<-210
-
-#Calculate Fetch (m)
-spdf$fetch<-SpatialFetch(spdf, wind_dir=wind_dir, shoreline=shoreline, projected=T, dmax=10000)
-spdf$fetch_km<-spdf$fetch/1000
-
-#Calculate k600 (cm/hr)
-spdf$k600<-Spatialk600(spdf, wind_speed=wind_speed, wind_height=wind_height, fetch_name='fetch')
-
-#Calculate Efflux (mmol/m2/d)
-spdf$CH4efflux<-SpatailFlux(spdf=spdf, conc_name='CH4uM_t', temp_name='TempC', K600_name='k600', gas='CH4', elevation = 257)
-spdf$CO2efflux<-SpatailFlux(spdf=spdf, conc_name='CO2uM_t', temp_name='TempC', K600_name='k600', gas='CO2', elevation = 257)
-
-summary(spdf$fetch)
-summary(spdf$k600)
-summary(spdf$CH4efflux)
-summary(spdf$CO2efflux)
-
-
-# Example Figure
-
-#fetch and k600 only
-spplot(spdf, zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
-
-spplot(spdf, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(k[600], " (cm/hr)")))
-
-
-
-p1<-spplot(spdf, zcol='fetch_km', cuts=100, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=0.7, pch=15, main=expression(paste("Fetch distance (km)")))
-
-p2<-spplot(spdf, zcol='k600', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=.7, pch=15, main=expression(paste(k[600], " (cm/hr)")))
-
-p3<-spplot(spdf, zcol='CO2uM_t', cuts=100, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=.7, pch=15, main=expression(paste(CO[2], " (", mu, "M)")))
-
-p4<-spplot(spdf, zcol='CO2efflux', cuts=100,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=.7, pch=15, main=expression(paste(CO[2], " efflux (mmol m"^"-2", " d"^"-1", ")")))
-
-p5<-spplot(spdf, zcol='CH4uM_t', cuts=100, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=.7, pch=15, main=expression(paste(CH[4], " (", mu, "M)")))
-
-p6<-spplot(spdf, zcol='CH4efflux', cuts=100, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), cex=.7, pch=15, main=expression(paste(CH[4], " efflux (mmol m"^"-2", " d"^"-1", ")")))
-
-
-png('Figures/ExampleFourPanel.png', width=8, height=10, units='in', res=200, bg='white')
-
-print(p1, position=c(0,.6666,.5,1), more=T, justify="left")
-print(p2, position=c(.5,.6666,1,1), more=T, justify="left")
-print(p3, position=c(0,.3333,.5,.6666), more=T, justify="left")
-print(p4, position=c(.5,.3333,1,.6666), more=T, justify="left")
-print(p5, position=c(0,0,.5,.3333), more=T, justify="left")
-print(p6, position=c(.5,0,1,.3333), more=F, justify="left")
-
-dev.off()
+# Save K table
+saveRDS(k600_dataframe , file='Data/DailyK600Stats.rds')
+write.table(k600_dataframe , file='Data/DailyK600Stats.csv')
 
