@@ -88,12 +88,15 @@ for (day in 1:length(daynumbers)){
   }
   
   Fetch_list[[day]]<-Mendota_grid
+  names(Fetch_list)[[day]]<-daynum
   
 }
 
 str(Fetch_list)
 
 saveRDS(Fetch_list , file='Data/DailyFetchK600maps.rds')
+saveRDS(daynumbers, file='Data/DailyFetchK600daynumbers.rds')
+
 
 # Test plots. Looks at last 'day'
 spplot(Fetch_list[[day]], zcol='fetch_km', cuts=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Fetch distance (km)")))
