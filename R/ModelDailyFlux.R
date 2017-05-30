@@ -68,8 +68,22 @@ for (time in dailydates){
   Fluxmatrix[time,,'CO2']<-Atmmatrix[time,,'CO2']*Kmatrix[time,]*.24
   Fluxmatrix[time,,'CH4']<-Atmmatrix[time,,'CH4']*Kmatrix[time,]*.24
   
+  Klist[[daynumber]]$CO2Conc<-DailyCO2uM
+  Klist[[daynumber]]$CH4Conc<-DailyCH4uM
+  
   Klist[[daynumber]]$CO2Flux<-Fluxmatrix[time,,'CO2']
   Klist[[daynumber]]$CH4Flux<-Fluxmatrix[time,,'CH4']
+  
+  
+  #Concentration maps
+  png(paste('Figures/DailyCO2ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+  print(spplot(Klist[[daynumber]], zcol='CO2Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
+  dev.off()
+  
+  png(paste('Figures/DailyCH4ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+  print(spplot(Klist[[daynumber]], zcol='CH4Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
+  dev.off()
+  
   
   png(paste('Figures/DailyCO2FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
   print(spplot(Klist[[daynumber]], zcol='CO2Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
@@ -80,6 +94,70 @@ for (time in dailydates){
   dev.off()
   
 }
+
+
+#Set concentration and flux ranges
+# This way images are constant color ramp and more suitable for timeseries comparison. 
+CO2Range<-range(c(ConcArray[,,c('CO2uM_t')]))
+CO2breaks<-seq(CO2Range[1],CO2Range[2], length.out=99)
+
+CH4Range<-range(c(ConcArray[,,c('CH4uM_t')]))
+CH4breaks<-seq(CH4Range[1],CH4Range[2], length.out=99)
+
+CO2FluxRange<-range(Fluxmatrix[,,'CO2'])
+CO2Fluxbreaks<-seq(CO2FluxRange[1],CO2FluxRange[2], length.out=99)
+
+CH4FluxRange<-range(Fluxmatrix[,,'CH4'])
+CH4Fluxbreaks<-seq(CH4FluxRange[1],CH4FluxRange[2], length.out=99)
+
+
+
+time=dailydates[1]
+for (time in dailydates){
+  daynumber<-which(time==dailydates)
+  date_name<-date_names[daynumber]
+  
+  png(paste('Figures/DailyCO2Movie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+  print(spplot(Klist[[daynumber]], zcol='CO2Conc', at=CO2breaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
+  dev.off()
+  
+  png(paste('Figures/DailyCH4Movie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+  print(spplot(Klist[[daynumber]], zcol='CH4Conc', at=CH4breaks,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
+  dev.off()
+
+  png(paste('Figures/DailyCO2FluxMovie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+  print(spplot(Klist[[daynumber]], zcol='CO2Flux', at=CO2Fluxbreaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+  dev.off()
+  
+  png(paste('Figures/DailyCH4FluxMovie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+  print(spplot(Klist[[daynumber]], zcol='CH4Flux', at=CH4Fluxbreaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+  dev.off()
+
+}
+
+PixelSummary<-Klist[[daynumber]]
+PixelSummary$CH4Conc<-colMeans(ConcArray[,,c('CH4uM_t')])
+PixelSummary$CO2Conc<-colMeans(ConcArray[,,c('CO2uM_t')])
+PixelSummary$CH4Flux<-colMeans(Fluxmatrix[,,'CH4'])
+PixelSummary$CO2Flux<-colMeans(Fluxmatrix[,,'CO2'])
+
+png(paste('Figures/CH4Conc2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='CH4Conc', breaks=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/CO2Conc2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='CO2Conc', cuts=20, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/CO2Flux2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='CO2Flux', cuts=20, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/CH4Flux2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='CH4Flux', cuts=20, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
+dev.off()
+
+
 
 hist(Fluxmatrix[,,'CO2'], breaks=40)
 hist(Fluxmatrix[,,'CH4'], breaks=40)
