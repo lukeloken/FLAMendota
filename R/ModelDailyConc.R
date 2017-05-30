@@ -98,3 +98,6 @@ approxnames
 
 # Save array
 saveRDS(approxarray, file='Data/DailyFlamebyPixel.rds')
+
+# Save pixelIDs
+saveRDS(coordinates, file='Data/PixelIDs.rds')
