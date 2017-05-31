@@ -184,11 +184,24 @@ names(DailyCH4Fluxquantiles)<-paste('CH4_Flux_', names(DailyCH4Fluxquantiles), s
 
 
 DailyStats<-data.frame(date_names, CO2_Conc_Mean, CH4_Conc_Mean, CO2_Flux_Mean, CH4_Flux_Mean, DailyCO2quantiles, DailyCH4quantiles, DailyCO2Fluxquantiles, DailyCH4Fluxquantiles)
-# Save daily summary table
 
+# Save daily summary table
 saveRDS(DailyStats , file='Data/DailyConcFluxStats.rds')
 write.table(DailyStats , file='Data/DailyConcFluxStats.csv')
 
+
+# Generate 'Buoy' Flux samples
+# pixel number's are buoy...
+BuoyPixels<-c(358:360, 404:406, 450:452)
+
+CO2Buoy_Conc_Mean<-rowMeans(ConcArray[,BuoyPixels,c('CO2uM_t')])
+CH4Buoy_Conc_Mean<-rowMeans(ConcArray[,BuoyPixels,c('CH4uM_t')])
+CH4Buoy_Flux_Mean<-rowMeans(Fluxmatrix[,BuoyPixels,'CH4'])
+CO2Buoy_Flux_Mean<-rowMeans(Fluxmatrix[,BuoyPixels,'CO2'])
+
+BuoyDailyStats<-data.frame(date_names, CO2Buoy_Conc_Mean, CH4Buoy_Conc_Mean, CO2Buoy_Flux_Mean, CH4Buoy_Flux_Mean)
+saveRDS(BuoyDailyStats , file='Data/DailyBuoyConcFluxStats.rds')
+write.table(BuoyDailyStats , file='Data/DailyBuoyConcFluxStats.csv')
 
 
 hist(Fluxmatrix[,,'CO2'], breaks=40)
