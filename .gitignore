@@ -4,4 +4,5 @@
 .rds
 .png
 .csv
-Figures
+/Figures
+/Data
