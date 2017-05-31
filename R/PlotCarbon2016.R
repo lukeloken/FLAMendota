@@ -29,6 +29,11 @@ DavidBuoyDaily<-aggregate(DavidBuoy[,3:5], by=list(DavidBuoy$Date), FUN='mean', 
 names(DavidBuoyDaily)[1]<-'Date'
 DavidBuoyDaily$Date<-as.Date(DavidBuoyDaily$Date)
 
+# ##############################
+# Lake Flux Data
+# ##############################
+LakeFlux<-readRDS(file='Data/DailyConcFluxStats.rds')
+BuoyFlux<-readRDS(file='Data/DailyBuoyConcFluxStats.rds')
 
 # ################
 # Lake wide Flame Data
@@ -270,6 +275,145 @@ box(which='plot')
 
 dev.off()
 
+# ############################
+# Plot Flux Data through time
+# ############################
+
+#CO2
+
+png('Figures/CarbonDioxideFlux2016.png', width=8, height=4, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(1,1))
+par(mar = c(3,3.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+par(lend=2)
+
+
+xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+co2flux_ylim<-range(c(LakeFlux$CO2_Flux_Mean, LakeFlux$CO2_Flux_5., LakeFlux$CO2_Flux_95.), na.rm=T)
+# co2_ylim[2]<-150
+
+
+plot(LakeFlux$date_names, LakeFlux$CO2_Flux_Mean,  type="n", pch=15, ylim=co2flux_ylim, ylab="", xlab="", xaxt="n")
+axis(1, at=xticks, labels=xlabels)
+
+mtext(expression(paste(CO[2], " efflux (mmol m"^"-2", " d"^"-1", ")", sep="")), 2, 2)
+mtext('2016', 1, 1.5)
+abline(h=0, lty=3)
+
+# Polygon of 5-95%
+polyx<-c(LakeFlux$date_names, rev(LakeFlux$date_names))
+polyy90<-c(LakeFlux$CO2_Flux_5., rev(LakeFlux$CO2_Flux_95.))
+polygon(polyx, polyy90, border=colors[3], col=colors[3])
+
+# Polygon of IQR
+polyy<-c(LakeFlux$CO2_Flux_25., rev(LakeFlux$CO2_Flux_75.))
+polygon(polyx, polyy, border=colors[5], col=colors[5])
+
+# Mean and Median
+points(LakeFlux$date_names, LakeFlux$CO2_Flux_50., type="l", col=colors[2], lwd=2)
+# points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=2)
+
+#Buoy
+# points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
+points(BuoyFlux$date_names, BuoyFlux$CO2Buoy_Flux_Mean,  type="l", col=colors[4], pch=16, cex=1, lty=1, lwd=1.5)
+
+#Plot legend
+usr<-par('usr')
+yscale<-diff(usr[3:4])/10
+box.y<-usr[4]-yscale*seq(0.5,5, length.out=7)
+
+xscale<-diff(usr[1:2])/30
+box.x<-usr[1]+xscale*seq(0.7,2, length.out=2)
+
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[5],2), rep(box.y[1],2)), col=colors[3], border=colors[3], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=colors[5], border=colors[5], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=2)
+
+#Buoy legend
+lines(x=box.x, y=rep(box.y[6], 2), lty=1, col=colors[4], type="l", pch=16, lwd=1.5)
+# points(x=mean(box.x), y=box.y[6], col=colors[4], type="p", pch=buoypch, cex=1.5)
+
+#Atm legend
+lines(x=box.x, y=rep(box.y[7], 2), lty=3, type="l")
+
+# legend text
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])),  expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'Buoy', "Atm"), pos=4)
+
+box(which='plot')
+
+dev.off()
+
+#CH4
+
+png('Figures/MethaneFlux2016.png', width=8, height=4, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(1,1))
+par(mar = c(3,3.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+par(lend=2)
+
+
+xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+ch4flux_ylim<-range(c(LakeFlux$CH4_Flux_Mean, LakeFlux$CH4_Flux_5., LakeFlux$CH4_Flux_95.), na.rm=T)
+# co2_ylim[2]<-150
+
+
+plot(LakeFlux$date_names, LakeFlux$CH4_Flux_Mean,  type="n", pch=15, ylim=ch4flux_ylim, ylab="", xlab="", xaxt="n")
+axis(1, at=xticks, labels=xlabels)
+
+mtext(expression(paste(CH[4], " efflux (mmol m"^"-2", " d"^"-1", ")", sep="")), 2, 2)
+mtext('2016', 1, 1.5)
+abline(h=0, lty=3)
+
+# Polygon of 5-95%
+polyx<-c(LakeFlux$date_names, rev(LakeFlux$date_names))
+polyy90<-c(LakeFlux$CH4_Flux_5., rev(LakeFlux$CH4_Flux_95.))
+polygon(polyx, polyy90, border=colors[3], col=colors[3])
+
+# Polygon of IQR
+polyy<-c(LakeFlux$CH4_Flux_25., rev(LakeFlux$CH4_Flux_75.))
+polygon(polyx, polyy, border=colors[5], col=colors[5])
+
+# Mean and Median
+points(LakeFlux$date_names, LakeFlux$CH4_Flux_50., type="l", col=colors[2], lwd=2)
+# points(LGRList$Mean$Date, LGRList$Mean$XCO2Dppm_t, type="l", col=colors[1], lwd=2)
+
+#Buoy
+# points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16, cex=1, lty=2)
+points(BuoyFlux$date_names, BuoyFlux$CH4Buoy_Flux_Mean,  type="l", col=colors[4], pch=16, cex=1, lty=1, lwd=1.5)
+
+#Plot legend
+usr<-par('usr')
+yscale<-diff(usr[3:4])/10
+box.y<-usr[4]-yscale*seq(0.5,5, length.out=7)
+
+xscale<-diff(usr[1:2])/30
+box.x<-usr[1]+xscale*seq(0.7,2, length.out=2)
+
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[5],2), rep(box.y[1],2)), col=colors[3], border=colors[3], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=colors[5], border=colors[5], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=2)
+
+#Buoy legend
+lines(x=box.x, y=rep(box.y[6], 2), lty=1, col=colors[4], type="l", pch=16, lwd=1.5)
+# points(x=mean(box.x), y=box.y[6], col=colors[4], type="p", pch=buoypch, cex=1.5)
+
+#Atm legend
+lines(x=box.x, y=rep(box.y[7], 2), lty=3, type="l")
+
+# legend text
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])),  expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'Buoy', "Atm"), pos=4)
+
+box(which='plot')
+
+dev.off()
 
 
 
