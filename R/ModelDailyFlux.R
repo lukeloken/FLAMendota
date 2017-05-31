@@ -142,19 +142,19 @@ PixelSummary$CH4Flux<-colMeans(Fluxmatrix[,,'CH4'])
 PixelSummary$CO2Flux<-colMeans(Fluxmatrix[,,'CO2'])
 
 png(paste('Figures/CH4Conc2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-print(spplot(PixelSummary, zcol='CH4Conc', breaks=99, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab='2016 Average'))
+print(spplot(PixelSummary, zcol='CH4Conc', cuts=40, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab='2016 Average'))
 dev.off()
 
 png(paste('Figures/CO2Conc2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-print(spplot(PixelSummary, zcol='CO2Conc', cuts=20, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab='2016 Average'))
+print(spplot(PixelSummary, zcol='CO2Conc', cuts=40, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab='2016 Average'))
 dev.off()
 
 png(paste('Figures/CO2Flux2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-print(spplot(PixelSummary, zcol='CO2Flux', cuts=20, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
+print(spplot(PixelSummary, zcol='CO2Flux', cuts=40, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
 dev.off()
 
 png(paste('Figures/CH4Flux2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-print(spplot(PixelSummary, zcol='CH4Flux', cuts=20, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
+print(spplot(PixelSummary, zcol='CH4Flux', cuts=40, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
 dev.off()
 
 
