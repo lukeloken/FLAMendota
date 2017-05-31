@@ -573,3 +573,168 @@ mtext(expression(paste('Buoy ', CH[4], ' (sat ratio)', sep="")), 1, 1.5)
 
 dev.off()
 
+
+
+
+# ##################################################
+# New Cumulative Plots for Concentration and Flux
+# ##################################################
+
+
+png('Figures/CumulativeCO2CH4Conc.png', width=3.5, height=6, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(1,4,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(2,0,0,0))
+par(lend=2)
+lwd=c(1,2,2)
+lty=c(1,2,3)
+colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
+colors[3]<-'darkgrey'
+
+xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+#CO2
+plot(LakeFlux$date_name, cumsum(LakeFlux$CO2_Conc_Mean), type="l", axes=F, ylab="", xlab="", col=colors[1], lty=lty[1], lwd=lwd[1])
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CO2Buoy_Conc_Mean), type="l", col=colors[1], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CO[2], ' (', mu, 'M X day)', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+box(which='plot')
+
+#CH4
+plot(LakeFlux$date_name, cumsum(LakeFlux$CH4_Conc_Mean), type="l", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1])
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CH4Buoy_Conc_Mean), type="l", col=colors[2], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CH[4], ' (', mu, 'M X day)', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=xlabels)
+box(which='plot')
+
+
+legend('topleft', c('Lake-wide mean', 'Buoy'), col='black', lty=lty, bty="n", lwd=lwd)
+
+mtext('Date', 1, 1.5)
+
+dev.off()
+
+
+#Cumulative Flux
+png('Figures/CumulativeCO2CH4Flux.png', width=3.5, height=6, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(1,4,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(2,0,0,0))
+par(lend=2)
+lwd=c(1,2,2)
+lty=c(1,2,3)
+colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
+colors[3]<-'darkgrey'
+
+xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+#CO2
+ylim<-range(c(cumsum(LakeFlux$CO2_Flux_Mean), cumsum(BuoyFlux$CO2Buoy_Flux_Mean)), na.rm=T)
+plot(LakeFlux$date_name, cumsum(LakeFlux$CO2_Flux_Mean), type="l", axes=F, ylab="", xlab="", col=colors[1], lty=lty[1], lwd=lwd[1], ylim=ylim)
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CO2Buoy_Flux_Mean), type="l", col=colors[1], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CO[2], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+box(which='plot')
+abline(h=0, lty=lty[3], col=colors[3])
+
+
+#CH4
+plot(LakeFlux$date_name, cumsum(LakeFlux$CH4_Flux_Mean), type="l", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1])
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CH4Buoy_Flux_Mean), type="l", col=colors[2], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CH[4], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=xlabels)
+box(which='plot')
+abline(h=0, lty=lty[3], col=colors[3])
+
+
+legend('topleft', c('Lake-wide mean', 'Buoy'), col='black', lty=lty, bty="n", lwd=lwd)
+
+mtext('Date', 1, 1.5)
+
+dev.off()
+
+
+# ###############################
+# New Buoy vs flame flux scatterplots
+# ###############################
+
+png('Figures/ScatterplotBuoyFlameCO2CH4v2.png', width=4, height=7, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(2,3.5,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(1,0,0,0))
+par(lend=2)
+par(lwd=2)
+lty=c(1,2)
+pt.cex=1.5
+
+color<-add.alpha(c('royalblue4', 'red2'), alpha=0.25)
+
+
+co2lim<-range(c(LakeFlux$CO2_Conc_Mean, BuoyFlux$CO2Buoy_Conc_Mean), na.rm=T)
+ch4lim<-range(c(LakeFlux$CH4_Conc_Mean, BuoyFlux$CH4Buoy_Conc_Mean), na.rm=T)
+
+plot(BuoyFlux$CO2Buoy_Conc_Mean, LakeFlux$CO2_Conc_Mean, pch=16, ylab="", xlab="", las=1, ylim=co2lim, xlim=co2lim, col=color[1], cex=pt.cex)
+box(which='plot')
+mtext(expression(paste('Lake-wide mean  ', CO[2], ' (', mu, 'M)', sep="")), 2, 2)
+mtext(expression(paste('Buoy ', CO[2], ' (', mu, 'M)', sep="")), 1, 1.5)
+abline(0,1, lty=3, col="black")
+
+plot(BuoyFlux$CH4Buoy_Conc_Mean, LakeFlux$CH4_Conc_Mean, pch=16, ylab="", xlab="", las=1, ylim=ch4lim, xlim=ch4lim, col=color[2], cex=pt.cex)
+box(which='plot')
+abline(0,1, lty=3, col="black")
+mtext(expression(paste('Lake-wide mean  ', CH[4], ' (', mu, 'M)', sep="")), 2, 2)
+mtext(expression(paste('Buoy ', CH[4], ' (', mu, 'M)', sep="")), 1, 1.5)
+
+dev.off()
+
+
+#Flux
+png('Figures/ScatterplotBuoyFlameCO2CH4Fluxv2.png', width=4, height=7, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(2,3.5,1.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(1,0,0,0))
+par(lend=2)
+par(lwd=2)
+lty=c(1,2)
+pt.cex=1.5
+
+color<-add.alpha(c('royalblue4', 'red2'), alpha=0.25)
+
+
+co2lim<-range(c(LakeFlux$CO2_Flux_Mean, BuoyFlux$CO2Buoy_Flux_Mean), na.rm=T)
+ch4lim<-range(c(LakeFlux$CH4_Flux_Mean, BuoyFlux$CH4Buoy_Flux_Mean), na.rm=T)
+
+plot(BuoyFlux$CO2Buoy_Flux_Mean, LakeFlux$CO2_Flux_Mean, pch=16, ylab="", xlab="", las=1, ylim=co2lim, xlim=co2lim, col=color[1], cex=pt.cex)
+box(which='plot')
+mtext(expression(paste('Lake-wide mean  ', CO[2], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2)
+mtext(expression(paste('Buoy ', CO[2], ' efflux (mmol m'^'-2', ')', sep="")), 1, 1.5)
+abline(0,1, lty=3, col="black")
+
+plot(BuoyFlux$CH4Buoy_Flux_Mean, LakeFlux$CH4_Flux_Mean, pch=16, ylab="", xlab="", las=1, ylim=ch4lim, xlim=ch4lim, col=color[2], cex=pt.cex)
+box(which='plot')
+abline(0,1, lty=3, col="black")
+mtext(expression(paste('Lake-wide mean  ', CH[4], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2)
+mtext(expression(paste('Buoy ', CH[4], ' efflux (mmol m'^'-2', ')', sep="")), 1, 1.5)
+
+dev.off()
+
