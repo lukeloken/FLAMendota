@@ -141,6 +141,8 @@ PixelSummary$CO2Conc<-colMeans(ConcArray[,,c('CO2uM_t')])
 PixelSummary$CH4Flux<-colMeans(Fluxmatrix[,,'CH4'])
 PixelSummary$CO2Flux<-colMeans(Fluxmatrix[,,'CO2'])
 
+#Save Average pixel images
+
 png(paste('Figures/CH4Conc2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
 print(spplot(PixelSummary, zcol='CH4Conc', cuts=40, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab='2016 Average'))
 dev.off()
