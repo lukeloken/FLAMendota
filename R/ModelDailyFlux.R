@@ -76,22 +76,22 @@ for (time in dailydates){
   
   
   #Concentration maps
-  png(paste('Figures/DailyCO2ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(Klist[[daynumber]], zcol='CO2Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
-  dev.off()
-  
-  png(paste('Figures/DailyCH4ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(Klist[[daynumber]], zcol='CH4Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
-  dev.off()
-  
-  
-  png(paste('Figures/DailyCO2FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(Klist[[daynumber]], zcol='CO2Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
-  dev.off()
-  
-  png(paste('Figures/DailyCH4FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(Klist[[daynumber]], zcol='CH4Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
-  dev.off()
+#   png(paste('Figures/DailyCO2ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+#   print(spplot(Klist[[daynumber]], zcol='CO2Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
+#   dev.off()
+#   
+#   png(paste('Figures/DailyCH4ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+#   print(spplot(Klist[[daynumber]], zcol='CH4Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
+#   dev.off()
+#   
+#   
+#   png(paste('Figures/DailyCO2FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+#   print(spplot(Klist[[daynumber]], zcol='CO2Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+#   dev.off()
+#   
+#   png(paste('Figures/DailyCH4FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+#   print(spplot(Klist[[daynumber]], zcol='CH4Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+#   dev.off()
   
 }
 
@@ -160,6 +160,36 @@ print(spplot(PixelSummary, zcol='CH4Flux', cuts=40, colorkey=TRUE, sp.layout=lis
 dev.off()
 
 
+#Aggregate across space
+
+CO2_Conc_Mean<-rowMeans(ConcArray[,,c('CO2uM_t')])
+CH4_Conc_Mean<-rowMeans(ConcArray[,,c('CH4uM_t')])
+CH4_Flux_Mean<-rowMeans(Fluxmatrix[,,'CH4'])
+CO2_Flux_Mean<-rowMeans(Fluxmatrix[,,'CO2'])
+
+DailyCO2quantiles<-as.data.frame(t(apply(ConcArray[,,c('CO2uM_t')], 1, quantile, probs = c(0.05, .1, .25, .5, .75, .95, 0.9),  na.rm = TRUE)))
+names(DailyCO2quantiles)<-paste('CO2_Conc_', names(DailyCO2quantiles), sep="")
+
+DailyCH4quantiles<-as.data.frame(t(apply(ConcArray[,,c('CH4uM_t')], 1, quantile, probs = c(0.05, .1, .25, .5, .75, .95, 0.9),  na.rm = TRUE)))
+names(DailyCH4quantiles)<-paste('CH4_Conc_', names(DailyCH4quantiles), sep="")
+
+
+DailyCO2Fluxquantiles<-as.data.frame(t(apply(Fluxmatrix[,,'CO2'], 1, quantile, probs = c(0.05, .1, .25, .5, .75, .95, 0.9),  na.rm = TRUE)))
+names(DailyCO2Fluxquantiles)<-paste('CO2_Flux_', names(DailyCO2Fluxquantiles), sep="")
+
+
+DailyCH4Fluxquantiles<-as.data.frame(t(apply(Fluxmatrix[,,'CH4'], 1, quantile, probs = c(0.05, .1, .25, .5, .75, .95, 0.9),  na.rm = TRUE)))
+names(DailyCH4Fluxquantiles)<-paste('CH4_Flux_', names(DailyCH4Fluxquantiles), sep="")
+
+
+
+DailyStats<-data.frame(date_names, CO2_Conc_Mean, CH4_Conc_Mean, CO2_Flux_Mean, CH4_Flux_Mean, DailyCO2quantiles, DailyCH4quantiles, DailyCO2Fluxquantiles, DailyCH4Fluxquantiles)
+# Save daily summary table
+
+saveRDS(DailyStats , file='Data/DailyConcFluxStats.rds')
+write.table(DailyStats , file='Data/DailyConcFluxStats.csv')
+
+
 
 hist(Fluxmatrix[,,'CO2'], breaks=40)
 hist(Fluxmatrix[,,'CH4'], breaks=40)
@@ -173,4 +203,13 @@ median((Fluxmatrix[,,'CO2']))
 summary(Fluxmatrix[,,'CH4'])
 mean((Fluxmatrix[,,'CH4']))
 median((Fluxmatrix[,,'CH4']))
+
+
+# Save Flux matrix and summaries
+
+saveRDS(PixelSummary , file='Data/PixelSummaryFlux.rds')
+saveRDS(Fluxmatrix , file='Data/DailyFluxperPixel.rds')
+
+
+
 
