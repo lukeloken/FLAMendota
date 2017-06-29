@@ -134,7 +134,7 @@ abline(0,1)
 
 png(paste('Figures/SummaryWindRose2016.png', sep=""), width=4, height=5, units='in', res=200, bg='white')
 par(mar = c(0,0.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
-windRose(dailywind, ws="speed", wd="dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=10, lty=5, col="gray"), offset=4, main=paste('2016 daily averages', sep=""), dig.lab=3)
+windRose(dailywind, ws="speed", wd="dir", cols='hue', paddle=F, auto.text=F, border='black', grid.line=list(value=5, lty=5, col="gray"), offset=4, main=paste('2016 daily wind', sep=""), dig.lab=3, angle.scale=45, key.footer=expression(paste('Wind speed (m s'^'-1', ')')))
 dev.off()
 
 # Save to Git folder
