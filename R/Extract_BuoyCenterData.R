@@ -47,3 +47,10 @@ Buoy_data$Date<-as.Date(Buoy_data$DateTime, tz="UTC")
 saveRDS(Buoy_data, file='Data/FlameBuoyMeasurements.rds')
 write.table(Buoy_data, file='Data/FlameBuoyMeasurements.csv')
 
+#Get average Buoy Location
+Buoy_medianLat<-median(Buoy_data$Latitude, na.rm=T)
+Buoy_medianLong<-median(Buoy_data$Longitude, na.rm=T)
+coords<-data.frame(Buoy_medianLong, Buoy_medianLat)
+BuoyLocation<-SpatialPointsDataFrame(coords, data=coords)
+proj4string(BuoyLocation)=CRS("+init=epsg:4326")
+writeOGR(BuoyLocation, dsn='Data/Shapefiles' ,layer="MendotaBuoyLocation", driver="ESRI Shapefile",  verbose=T, overwrite=T)
