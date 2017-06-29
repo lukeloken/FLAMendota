@@ -17,6 +17,7 @@ dates2016<-dates[grep('2016', dates)]
 dates2016<-dates2016[grep('LakeMendota', dates2016)]
 
 maps_list<-list()
+points_list<-list()
 
 dir<-1
 for (dir in 1:length(dates2016)){
@@ -28,9 +29,19 @@ for (dir in 1:length(dates2016)){
   shapefile<-readOGR(file_dir, loadname)
   maps_list[[dir]]<-shapefile
   names(maps_list)[[dir]]<-loadname
+  
+  points_dir<-paste(data_dir, '/', dates2016[dir], sep="")
+  points_files<-list.files(points_dir)
+  pointsname<-points_files[grep('cleaned.csv', points_files)]
+  
+  points_df<-read.csv(paste(points_dir, '/', pointsname,  sep=""), header=T, stringsAsFactors = F)
+  points_list[[dir]]<-points_df
+  names(points_list)[[dir]]<-loadname
+  
 }
 
 # Save to Git folder
 saveRDS(maps_list, file='Data/All2016Maps.rds')
+saveRDS(points_list, file='Data/All2016Points.rds')
 
 
