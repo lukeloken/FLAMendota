@@ -26,12 +26,21 @@ axis(1, at=xticks, labels=xlabels)
 
 mtext('Coefficient of variation', 2, 2)
 
-
-
+ConcArray<-readRDS(file='Data/DailyFlamebyPixel.rds')
 
 fluxmatrix<-readRDS('Data/DailyFluxperPixel.rds')
 str(fluxmatrix)
-sd(fluxmatrix[])
+sd(fluxmatrix)
+
+# Kmatrix<-readRDS('Data/Kmatrix.rds')
+# 
+# plot(ConcArray[,,'CO2uM_t'], fluxmatrix[,,'CO2'])
+# plot(ConcArray[,,'CH4uM_t'], fluxmatrix[,,'CH4'])
+# 
+# plot(Kmatrix[,], fluxmatrix[,,'CO2'])
+# plot(Kmatrix[,], fluxmatrix[,,'CH4'])
+
+
 
 sdCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,sd) 
 meanCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,mean)
