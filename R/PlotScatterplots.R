@@ -30,11 +30,11 @@ colors=add.alpha(rawcolors, 0.05)
 
 
 
-par(mar=c(3,3,1,1))
-par(mgp=c(1.5,0.4,0),tck=-0.02)
-
-smoothScatter(df[,'ODOsat_tau'], df[,"CO2Sat_tau"], colramp = colorRampPalette(c( blues9)), pch=16, col='lightgrey', cex=.5)
-abline(200,-1, lty=2)
+# par(mar=c(3,3,1,1))
+# par(mgp=c(1.5,0.4,0),tck=-0.02)
+# 
+# smoothScatter(df[,'ODOsat_tau'], df[,"CO2Sat_tau"], colramp = colorRampPalette(c( blues9)), pch=16, col='lightgrey', cex=.5)
+# abline(200,-1, lty=2)
 
 colfunc<-colorRampPalette(c('grey90', "cyan", "darkorchid3"))
 
@@ -202,9 +202,41 @@ ggplot(data=df,aes(x=ODOsat,y=CH4uM_tau))  +
   commonTheme
 dev.off()
 
+png("Figures/Mendota_logCH4vDO.png", height=4, width=5, units="in", res=300)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x="DO (%sat)",
+                        y=expression(paste(log[10], ' ', CH[4], ' (', mu, 'M)'))),
+                   theme_bw(),
+                   theme(legend.position=c(0.85,0.25)))
+
+ggplot(data=df,aes(x=ODOsat,y=log10(CH4uM_tau)))  + 
+  ylim(-5,1.5) + 
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+dev.off()
 
 
+png("Figures/Mendota_CH4vCO2.png", height=4, width=5, units="in", res=300)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x="CO2 (uM)",
+                        y="CH4 (uM)"),
+                   theme_bw(),
+                   theme(legend.position=c(0.75,0.75)))
 
+ggplot(data=df,aes(x=CO2uM_tau,y=CH4uM_tau))  + 
+  ylim(0,15) + 
+  xlim(0,300) + 
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+dev.off()
 
 
 #Check what CO2 should be based on DIC and Alk
