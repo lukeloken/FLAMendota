@@ -1,11 +1,104 @@
 library(plyr)
 library(dplyr)
 library(ggplot2)
+library(grid)
+library(gridExtra)
 
 source('R/AddAlpha.R')
 
 allflame<-readRDS('Data/DailyFlamebyPixel.rds')
 allpoints<-readRDS('Data/All2016Points.rds')
+
+ConcArray<-readRDS(file='Data/DailyFlamebyPixel.rds')
+
+fluxmatrix<-readRDS('Data/DailyFluxperPixel.rds')
+
+Kmatrix<-readRDS('Data/Kmatrix.rds')
+
+
+flux_df<-data.frame(k=as.vector(Kmatrix[,]),CO2Conc=as.vector(ConcArray[,,'CO2uM_t']), CH4Conc=as.vector(ConcArray[,,'CH4uM_t']), CO2Flux=as.vector(fluxmatrix[,,'CO2']), CH4Flux=as.vector(fluxmatrix[,,'CH4']))
+
+png("Figures/ConcKFlux4Panel.png", height=8, width=8, units="in", res=300)
+
+k<-expression(paste(k[600], " (cm hr"^"-1", ")"))
+co2conc<-expression(paste(CO[2], " concentration (", mu, "M)", sep=""))
+ch4conc<-expression(paste(CH[4], " concentration (", mu, "M)", sep=""))
+co2flux<-expression(paste(CO[2], " efflux (mmol m"^"-2", " d"^"-1", ")", sep=""))
+ch4flux<-expression(paste(CH[4], " efflux (mmol m"^"-2", " d"^"-1", ")", sep=""))
+
+#plot 1 (k vs co2 flux)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x=k,
+                        y=co2flux),
+                   theme_bw(),
+                   theme(legend.position=c(0.15,0.75)))
+
+p1= ggplot(flux_df, aes(x=k,y=CO2Flux))  + 
+    ylim(-50,300) + 
+    xlim(0,38) +
+    geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+    geom_point(alpha=0.04, colour="gray80") +
+    stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+    scale_fill_continuous(low="purple4",high="cyan") +
+    guides(alpha="none") +
+    commonTheme
+
+#plot 2 (k vs ch4 flux)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x=k,
+                        y=ch4flux),
+                   theme_bw(),
+                   theme(legend.position=c(0.15,0.75)))
+
+p2= ggplot(flux_df, aes(x=k,y=CH4Flux))  + 
+  ylim(0,12) + 
+  xlim(0,38) +
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+
+#plot 3 (co2 conc vs co2 flux)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x=co2conc,
+                        y=""),
+                   theme_bw(),
+                   theme(legend.position=c(0.15,0.75)))
+
+p3= ggplot(flux_df, aes(x=CO2Conc,y=CO2Flux))  + 
+  ylim(-50,300) + 
+  xlim(0,100) +
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+
+#plot 4 (ch4 conc vs ch4 flux)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x=ch4conc,
+                        y=""),
+                   theme_bw(),
+                   theme(legend.position=c(0.15,0.75)))
+
+p4= ggplot(flux_df, aes(x=CH4Conc,y=CH4Flux))  + 
+  ylim(0,12) + 
+  xlim(0,3.8) +
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+
+# grid.arrange(p1,p2, nrow=1, ncol=2)
+grid.arrange(p1,p3,p2,p4, nrow=2, ncol=2)
+
+dev.off()
+
 
 df <- ldply(allpoints, data.frame)
 str(df)
@@ -66,14 +159,16 @@ commonTheme = list(labs(color="Density",fill="Density",
 
 ggplot(data=df,aes(x=ODOsat_tau,y=CO2Sat_tau))  + 
   ylim( low=0, high=1000) +
-  geom_point(alpha=0.04, colour="gray") +
-  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
-  scale_fill_continuous(low="cyan",high="magenta") +
-  guides(alpha="none") +
   geom_hline(aes(yintercept=100), linetype="dashed", colour="gray") +
   geom_vline(aes(xintercept=100), linetype="dashed", colour="gray") +
   geom_abline(intercept=200, slope=-1) +
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
   commonTheme
+
 dev.off()
 
 
