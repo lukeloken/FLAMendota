@@ -50,6 +50,10 @@ for (Kmap in 1:length(dailydates)){
   Kmatrix[Kmap,]<-dailydata$k600
 }
 
+# Save k matrix
+saveRDS(Kmatrix, file='Data/Kmatrix.rds')
+
+
 # Atmospheric equilibrium array
 Atmmatrix<-array(data=NA, dim=c(length(dailydates), nrow(coordinates), 2), dimnames=list(dailydates, coordinates$pixelID, c('CO2', 'CH4')))
 
