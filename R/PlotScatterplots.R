@@ -5,6 +5,7 @@ library(grid)
 library(gridExtra)
 
 source('R/AddAlpha.R')
+source('R/CalculateCarbonSpecies.R')
 
 allflame<-readRDS('Data/DailyFlamebyPixel.rds')
 allpoints<-readRDS('Data/All2016Points.rds')
@@ -129,6 +130,8 @@ colors=add.alpha(rawcolors, 0.05)
 # smoothScatter(df[,'ODOsat_tau'], df[,"CO2Sat_tau"], colramp = colorRampPalette(c( blues9)), pch=16, col='lightgrey', cex=.5)
 # abline(200,-1, lty=2)
 
+
+
 colfunc<-colorRampPalette(c('grey90', "cyan", "darkorchid3"))
 
 
@@ -171,6 +174,8 @@ ggplot(data=df,aes(x=ODOsat_tau,y=CO2Sat_tau))  +
 
 dev.off()
 
+O2model<-lm(df$CO2Sat_tau~df$ODOsat_tau)
+summary(O2model)
 
 png("Figures/Mendota_logCO2vpH.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
@@ -365,6 +370,9 @@ ggplot(data=df,aes(x=CO2uM_tau,y=CO2guessDIC))  +
   guides(alpha="none") +
   commonTheme
 dev.off()
+
+DICmodel<-lm(df$CO2guessDIC~df$CO2uM_tau)
+summary(DICmodel)
 
 png("Figures/CO2obsvsALKmodelHeatPlot.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
