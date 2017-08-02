@@ -345,6 +345,9 @@ MedDICmolKG/2
 
 df$CO2guessDIC<-carb(flag=9, var1=df$pH, var2=MedDICmolKG, S=0.3, T=df$TempC, warn='n', k1k2="m06", Patm=0.93)$CO2*1000000
 
+# Test the influence of pH. add constant to pH and recalculate CO2. 
+# df$CO2guessDIC<-carb(flag=9, var1=(df$pH+.21), var2=MedDICmolKG, S=0.3, T=df$TempC, warn='n', k1k2="m06", Patm=0.93)$CO2*1000000
+
 df$CO2uatmguessDIC<-carb(flag=9, var1=df$pH, var2=MedDICmolKG, S=0.3, T=df$TempC, warn='n', k1k2="m06", Patm=0.93)$pCO2
 
 df$CO2guessALK<-carb(flag=8, var1=df$pH, var2=MedALKmolKG, S=0.3, T=df$TempC, warn='n', k1k2="m06", Patm=0.93)$CO2*1000000
