@@ -87,7 +87,7 @@ xticks<-seq(ceiling_date(min(dates), "weeks"),floor_date(max(dates), "weeks"), b
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), day(xticks), sep=" ")
 
 
-filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=xticks, labels=xlabels); axis(2);lines(wrt3[,1],t.d.roll, lwd=1, col='grey30'); lines(wrt_top[,1], t.d.t.roll, lwd=1, col='grey30') })
+filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 40, color.palette = colorRampPalette(c('navy', "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=xticks, labels=xlabels); axis(2);lines(wrt3[,1],t.d.roll, lwd=1, col='black'); lines(wrt_top[,1], t.d.t.roll, lwd=1, col='black') })
 
 mtext(expression(paste("Water temperature (", degree, "C)", sep="")), 4, -6)
 
@@ -111,7 +111,7 @@ par(lend=2)
 colors<-c('darkred', 'darkblue')
 
 plot(LTERmet_subset$datetime, LTERmet_subset$avg_air_temp, type='l', xlab='', ylab='', las=1, xaxs='i', yaxt='n', col=colors[1], lwd=2, xaxt='n')
-axis(1, labels=NA)
+axis(1, labels=NA, at=xticks)
 axis(4, las=1, col=colors[1], col.ticks=colors[1], col.axis=colors[1])
 mtext(expression(paste('Air temperature (', degree, 'C)')), 4, 1.5, col=colors[1])
 par(new=T)
@@ -120,7 +120,8 @@ axis(4, las=1, line=3, col=colors[1], col.axis=colors[1])
 mtext(expression(paste('(', degree, 'F)')), 4, 4.5, col=colors[1])
 
 # par(new=T)
-plot(LTERmet_subset$datetime, LTERmet_subset$avg_wind_speed, type='l', xlab='', ylab='', las=1, xaxs='i', col=colors[2], yaxt='n', lwd=2)
+plot(LTERmet_subset$datetime, LTERmet_subset$avg_wind_speed, type='l', xlab='', ylab='', las=1, xaxs='i', col=colors[2], yaxt='n', lwd=2, xaxt='n')
+axis(1, labels=xlabels, at=xticks)
 mtext(expression(paste('Wind speed (m s'^'-1', ')')), 4, 1.5, col=colors[2])
 axis(4, las=1, col=colors[2], col.ticks=colors[2], col.axis=colors[2])
 
