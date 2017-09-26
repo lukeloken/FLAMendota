@@ -6,6 +6,8 @@ library(gtools)
 library(LakeMetabolizer)
 library(rLakeAnalyzer)
 library(stringr)
+library(RcppRoll)
+library(lubridate)
 
 # LTERdf<-read.csv('Data/sensor_mendota_lake_watertemp_hourly2017.csv', header=T, stringsAsFactors = F)
 # LTERdf$sample_time<-str_pad(LTERdf$hour, 4, pad = "0")
@@ -25,16 +27,38 @@ dates.df<-data.frame(datetime = c(dates))
 
 #Make Matrix of temperature (x=depth, y=date, z=temp)
 wrt1<-spread(LTERdf_subset[c('datetime', 'depth', 'wtemp')], key=depth, value=wtemp, fill=NA )
+wrt3<-wrt1[which(!is.na(rowSums(wrt1[,-1]))),]
+wrt_top<-wrt3[,1:15]
 wrt2<-merge(wrt1, dates.df, by='datetime', all=T)
 wrt<-as.matrix(wrt2[,-1])
 
-m.d.1 <- apply(wrt1[,-1], 1, function (x) meta.depths(x, depths=depths)[1])
-m.d.2 <- apply(wrt1[,-1], 1, function (x) meta.depths(x, depths=depths)[2])
+m.d.1 <- apply(wrt3[,-1], 1, function (x) meta.depths(x, depths=depths)[1])
+m.d.2 <- apply(wrt3[,-1], 1, function (x) meta.depths(x, depths=depths)[2])
+m.d<-rowMeans(data.frame(m.d.1, m.d.2))
+m.d.roll<-roll_mean(m.d, n=60*6+1, align='center', fill=NA)
 
-plot(wrt1[,1],m.d.1, ylim=c(20,0), type='l')
-points(wrt1[,1], m.d.2, col='red', type='l')
+t.d<-apply(wrt3[,-1], 1, function (x) thermo.depth(x, depths=depths)[1])
+t.d.roll<-roll_mean(t.d, n=60*2+1, align='center', fill=NA)
 
-polygon(x=c(wrt1[,1], rev(wrt1[,1])), y=c(m.d.2, rev(m.d.1)), col='grey')
+m.d.t1 <- apply(wrt_top[,-1], 1, function (x) meta.depths(x, depths=depths[1:14])[1])
+m.d.t2 <- apply(wrt_top[,-1], 1, function (x) meta.depths(x, depths=depths[1:14])[2])
+m.d.t<-rowMeans(data.frame(m.d.t1, m.d.t2))
+m.d.t.roll<-roll_mean(m.d.t, n=60*6+1, align='center', fill=NA)
+
+t.d.t<-apply(wrt_top[,-1], 1, function (x) thermo.depth(x, depths=depths[1:14])[1])
+t.d.t.roll<-roll_mean(t.d.t, n=60*2+1, align='center', fill=NA)
+
+
+plot(wrt3[,1],m.d.1, ylim=c(20,0), type='l', lwd=0.2, col='grey50')
+points(wrt3[,1], m.d.2, type='l', lwd=0.2, col='grey50')
+polygon(x=c(wrt3[,1], rev(wrt3[,1])), y=c(m.d.2, rev(m.d.1)), col='grey50', border=NA)
+lines(wrt3[,1],m.d.roll, lwd=2, col='blue')
+lines(wrt3[,1], t.d.roll, lwd=1, col='lightblue')
+
+polygon(x=c(wrt_top[,1], rev(wrt_top[,1])), y=c(m.d.t2, rev(m.d.t1)), col='lightgreen', border=NA)
+lines(wrt_top[,1],m.d.t.roll, lwd=2, col='green')
+lines(wrt_top[,1], t.d.t.roll, lwd=1, col='magenta')
+
 
 png('Figures/TempBathyGram2017.png', width=7.15, height=3.5, units='in', res=400, bg='white')
 par(pch=16)
@@ -45,6 +69,26 @@ par(lend=2)
 
 
 filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)")
+
+
+mtext(expression(paste("Water temperature (", degree, "C)", sep="")), 4, -6)
+
+dev.off()
+
+png('Figures/TempBathyGram2017_WithThermocline.png', width=7.15, height=3.5, units='in', res=400, bg='white')
+par(pch=16)
+par(ps=10)
+par(mfrow=c(1,1))
+par(mar = c(3,3.5,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+par(lend=2)
+
+
+xticks<-seq(ceiling_date(min(dates), "weeks"),floor_date(max(dates), "weeks"), by='weeks')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), day(xticks), sep=" ")
+
+
+filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=xticks, labels=xlabels); axis(2);lines(wrt3[,1],t.d.roll, lwd=1, col='grey30'); lines(wrt_top[,1], t.d.t.roll, lwd=1, col='grey30') })
+
 mtext(expression(paste("Water temperature (", degree, "C)", sep="")), 4, -6)
 
 dev.off()
