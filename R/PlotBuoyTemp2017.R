@@ -171,7 +171,7 @@ mtext(expression(paste('(', degree, 'F)')), 4, 5.5, col=colors[1])
 
 # par(new=T)
 plot(LTERmet_subset$datetime, LTERmet_subset$avg_wind_speed, type='l', xlab='', ylab='', las=1, xaxs='i', col=colors[2], yaxt='n', lwd=2, xaxt='n')
-# axis(1, labels=xlabels, at=xticks)
+axis(1, labels=NA, at=xticks)
 mtext(expression(paste('Wind speed (m s'^'-1', ')')), 4, 2, col=colors[2])
 axis(4, las=1, col.ticks=colors[2], col.axis=colors[2])
 
