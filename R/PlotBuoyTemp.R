@@ -17,7 +17,9 @@ TempHeatTS<-function (LTERdf, ticks, labels){
   
   #Plot
   # filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)")
+#   
+#   filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("navy", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=ticks, labels=labels); axis(2) })
   
-  filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=ticks, labels=labels); axis(2) })
+  filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 100, color.palette = colorRampPalette(c(viridis(6, begin=.05, end=.98), rev(magma(5, begin=.35, end=.98))), bias=1), ylab="Depth (m)", plot.axes = { axis(1, at=ticks, labels=labels); axis(2) })
   
 }
