@@ -45,9 +45,11 @@ mtext(expression(paste("Temperature (", degree, "C)", sep="")), 4, -6)
 dev.off()
 
 
+colors<-colorRampPalette(c(viridis(6, begin=.05, end=.98), rev(magma(5, begin=.35, end=.98))))
 
+# colors<-colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb")
 
-colors<-colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb")
+# colors<-colorRampPalette(c("navy", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb")
 
 breaks<-seq(min(BuoyData2016$wtemp), max(BuoyData2016$wtemp), length.out=100)
 
