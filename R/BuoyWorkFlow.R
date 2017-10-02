@@ -45,7 +45,11 @@ mtext(expression(paste("Temperature (", degree, "C)", sep="")), 4, -6)
 dev.off()
 
 
-colors<-colorRampPalette(c(viridis(6, begin=.05, end=.98), rev(magma(5, begin=.35, end=.98))))
+# colors<-colorRampPalette(c(viridis(14, begin=.00, end=.99), rev(magma(10, begin=.4, end=.85))))
+
+colors<- colorRampPalette(c(viridis(8, begin=.00, end=.99), c('#fed976',  '#feb24c',  '#fd8d3c',  '#f03b20',  '#bd0026')), bias=1)
+
+# colors<-colorRampPalette(rev(c('#67001f', '#9e0142', '#d53e4f', '#f46d43', '#fdae61', '#fee08b', '#e6f598', '#abdda4', '#66c2a5', '#3288bd', '#5e4fa2', '#40004b')), bias = 1, space = "rgb")
 
 # colors<-colorRampPalette(c("violet", "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb")
 
