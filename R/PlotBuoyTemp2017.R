@@ -17,11 +17,21 @@ colors<-c('darkred', 'darkblue', 'olivedrab')
 
 # LTERdf<-read.csv('Data/sensor_mendota_lake_watertemp_hi_res_Sep2017.csv', header=T, stringsAsFactors = F)
 
-LTERdf<-read.csv('Data/sensor_mendota_lake_watertemp_hi_res_Oct2_2017.csv', header=T, stringsAsFactors = F)
+LTERdf<-read.csv('Data/sensor_mendota_lake_watertemp_hi_res_Oct4_2017.csv', header=T, stringsAsFactors = F)
 LTERdf$sample_time<-str_pad(LTERdf$sample_time, 4, pad = "0")
 
 LTERdf$datetime<-as.POSIXct(paste(LTERdf$sampledate, LTERdf$sample_time, sep=" "), format='%Y-%m-%d %H%M')
-LTERdf_subset<-LTERdf[LTERdf$datetime>mindate,]
+
+LTERdf2<-read.csv('Data/sensor_mendota_lake_watertemp_hi_res_Oct20_2017.csv', header=T, stringsAsFactors = F)
+LTERdf2$sample_time<-str_pad(LTERdf2$sample_time, 4, pad = "0")
+
+LTERdf2$datetime<-as.POSIXct(paste(LTERdf2$sampledate, LTERdf2$sample_time, sep=" "), format='%Y-%m-%d %H%M')
+
+LTERdf3<-smartbind(LTERdf, LTERdf2)
+LTERdf3$datetime<-as.POSIXct(LTERdf3$datetime, format='%Y-%m-%d %H:%M:%S')
+LTERdf4 <- unique( LTERdf3[ , ] )
+
+LTERdf_subset<-LTERdf4[LTERdf4$datetime>mindate,]
 
 LTERdf_subset<-LTERdf_subset[order(LTERdf_subset$datetime),]
 
@@ -89,7 +99,7 @@ par(lend=2)
 
 
 xticks<-seq(ceiling_date(min(dates), "weeks"),floor_date(max(dates), "weeks"), by='weeks')
-xlabels<-paste(month(xticks, label=TRUE, abbr=T), day(xticks), sep=" ")
+xlabels<-paste(lubridate::month(xticks, label=TRUE, abbr=T), day(xticks), sep=" ")
 
 
 filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 40, color.palette = colorRampPalette(c('navy', "blue", "cyan", "green3", "yellow", "orange", "red"), bias = 1, space = "rgb"), ylab="Depth (m)", plot.axes = { axis(1, at=xticks, labels=xlabels); axis(2);lines(wrt3[,1],t.d.roll, lwd=1, col='black'); lines(wrt_top[,1], t.d.t.roll, lwd=1, col='black') })
@@ -108,7 +118,7 @@ par(lend=2)
 
 
 xticks<-seq(ceiling_date(min(dates), "weeks"),floor_date(max(dates), "weeks"), by='weeks')
-xlabels<-paste(month(xticks, label=TRUE, abbr=T), day(xticks), sep=" ")
+xlabels<-paste(lubridate::month(xticks, label=TRUE, abbr=T), day(xticks), sep=" ")
 
 
 filled.contour(x=dates, y=depths, z=wrt, ylim=c(max(depths), 0), nlevels = 40, color.palette = colorRampPalette(c(viridis(6, begin=.2, end=.98), rev(magma(5, begin=.35, end=.98))), bias=1), ylab="Depth (m)", plot.axes = { axis(1, at=xticks, labels=xlabels); axis(2);lines(wrt3[,1],t.d.roll, lwd=1, col='black'); lines(wrt_top[,1], t.d.t.roll, lwd=1, col='black') })
@@ -118,7 +128,7 @@ mtext(expression(paste("Water temperature (", degree, "C)", sep="")), 4, -6)
 dev.off()
 
 
-LTERmet<-read.csv('Data/sensor_mendota_lake_met_hourly_Oct2_2017.csv', header=T, stringsAsFactors = F)
+LTERmet<-read.csv('Data/sensor_mendota_lake_met_hourly_Oct20_2017.csv', header=T, stringsAsFactors = F)
 LTERmet$sample_time<-str_pad(LTERmet$hour, 4, pad = "0")
 
 LTERmet$datetime<-as.POSIXct(paste(LTERmet$sampledate, LTERmet$sample_time, sep=" "), format='%Y-%m-%d %H%M')
@@ -182,7 +192,7 @@ mtext(expression(paste('DO (% sat)')), 4, 2, col=colors[3])
 axis(4, las=1,  col.ticks=colors[3], col.axis=colors[3])
 
 abline(v=cleandate, lty=3)
-text(x=cleandate, y=mean(par('usr')[4]), 'sensor cleaned', srt=0, pos=1)
+text(x=cleandate, y=mean(par('usr')[4])-50, 'sensor cleaned', srt=0, pos=4)
 
 dev.off()
 
