@@ -225,7 +225,7 @@ PixelSummary$k600<-colMeans(Kmatrix[,], na.rm=T)
 cuts<-40
 
 png(paste('Figures/K6002016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-print(spplot(PixelSummary, zcol='K600', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), xlab=expression(paste(k[600], " (cm hr"^"-1", ")")), main='2016 average k'))
+print(spplot(PixelSummary, zcol='k600', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), xlab=expression(paste(k[600], " (cm hr"^"-1", ")")), main='2016 average k'))
 dev.off()
 
 png(paste('Figures/CH4Conc2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
