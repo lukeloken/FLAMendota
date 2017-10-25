@@ -16,6 +16,11 @@ Buoy_data<-readRDS('Data/FlameBuoyMeasurements.rds')
 Buoy_daily = aggregate(Buoy_data, by=list(Buoy_data$Date), FUN=mean, na.rm=T)
 names(Buoy_daily)[1]<-c('Date')
 
+# Save to Git folder
+saveRDS(Buoy_daily, file='Data/FlameBuoyAvgMeasurements.rds')
+write.table(Buoy_daily, file='Data/FlameBuoyAvgMeasurements.csv')
+
+
 # ################
 # David Buoy Turner CO2 sensor
 # ################
@@ -36,6 +41,7 @@ DavidBuoyDaily$Date<-as.Date(DavidBuoyDaily$Date)
 # ##############################
 LakeFlux<-readRDS(file='Data/DailyConcFluxStats.rds')
 BuoyFlux<-readRDS(file='Data/DailyBuoyConcFluxStats.rds')
+
 
 # ################
 # Lake wide Flame Data
@@ -793,8 +799,8 @@ mean(All_inter_merge$CO2Sat_Flame-All_inter_merge$CO2Sat_Buoy)/100
 
 All_inter_merge$FCH4cum<-NA
 All_inter_merge$BCH4cum<-NA
-All_inter_merge$FCO2cum[row]<-NA
-All_inter_merge$BCO2cum[row]<-NA
+All_inter_merge$FCO2cum<-NA
+All_inter_merge$BCO2cum<-NA
 row<-1
 for (row in 1:nrow(All_inter_merge)){
   All_inter_merge$FCH4cum[row]<-sum(All_inter_merge$CH4Sat_Flame[1:row])
@@ -804,6 +810,12 @@ for (row in 1:nrow(All_inter_merge)){
   All_inter_merge$BCO2cum[row]<-sum(All_inter_merge$CO2Sat_Buoy[1:row])
   
 }
+
+CO2LakeCum<-tail(cumsum(LakeFlux$CO2_Flux_Mean),1)*39.52
+CO2BuoyCum<-tail(cumsum(BuoyFlux$CO2Buoy_Flux_Mean),1)*39.52
+CH4LakeCum<-tail(cumsum(LakeFlux$CH4_Flux_Mean),1)*39.52
+CH4BuoyCum<-tail(cumsum(BuoyFlux$CH4Buoy_Flux_Mean),1)*39.52
+
 
 
 # Cumulative carbon concentration plots
@@ -819,6 +831,7 @@ par(lend=2)
 lwd=c(1,2,2)
 lty=c(1,2,3)
 colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
+colors<-add.alpha(c('darkblue', 'darkred'), alpha=0.6)
 colors[3]<-'darkgrey'
 
 xticks<-seq(ceiling_date(min(All_inter_merge$Date), "months"),floor_date(max(All_inter_merge$Date), "months"), by='months')
@@ -866,7 +879,7 @@ par(lwd=2)
 lty=c(1,2)
 pt.cex=1.5
 
-color<-add.alpha(c('royalblue4', 'red2'), alpha=0.25)
+color<-add.alpha(c('darkblue', 'darkred'), alpha=0.25)
 co2lim<-range(c(All_inter_merge$CO2Sat_Buoy/100, All_inter_merge$CO2Sat_Flame/100), na.rm=T)
 ch4lim<-range(c(All_inter_merge$CH4Sat_Buoy/100, All_inter_merge$CH4Sat_Flame/100), na.rm=T)
 
@@ -901,7 +914,7 @@ par(oma=c(2,0,0,0))
 par(lend=2)
 lwd=c(1,2,2)
 lty=c(1,2,3)
-colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
+colors<-add.alpha(c('darkblue', 'darkred'), alpha=0.6)
 colors[3]<-'darkgrey'
 
 xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
@@ -944,7 +957,7 @@ par(oma=c(2,0,0,0))
 par(lend=2)
 lwd=c(1,2,2)
 lty=c(1,2,3)
-colors<-add.alpha(c('royalblue4', 'red2'), alpha=0.9)
+colors<-add.alpha(c('darkblue', 'darkred'), alpha=0.6)
 colors[3]<-'darkgrey'
 
 xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
@@ -996,7 +1009,7 @@ par(lwd=2)
 lty=c(1,2)
 pt.cex=1.5
 
-color<-add.alpha(c('royalblue4', 'red2'), alpha=0.25)
+color<-add.alpha(c('darkblue', 'darkred'), alpha=0.25)
 
 
 co2lim<-range(c(LakeFlux$CO2_Conc_Mean, BuoyFlux$CO2Buoy_Conc_Mean), na.rm=T)
@@ -1029,7 +1042,7 @@ par(lwd=2)
 lty=c(1,2)
 pt.cex=1.5
 
-color<-add.alpha(c('royalblue4', 'red2'), alpha=0.25)
+color<-add.alpha(c('darkblue', 'darkred'), alpha=0.25)
 
 
 co2lim<-range(c(LakeFlux$CO2_Flux_Mean, BuoyFlux$CO2Buoy_Flux_Mean), na.rm=T)
