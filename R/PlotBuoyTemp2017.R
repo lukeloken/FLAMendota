@@ -22,7 +22,7 @@ LTERdf$sample_time<-str_pad(LTERdf$sample_time, 4, pad = "0")
 
 LTERdf$datetime<-as.POSIXct(paste(LTERdf$sampledate, LTERdf$sample_time, sep=" "), format='%Y-%m-%d %H%M')
 
-LTERdf2<-read.csv('Data/sensor_mendota_lake_watertemp_hi_res_Oct20_2017.csv', header=T, stringsAsFactors = F)
+LTERdf2<-read.csv('Data/sensor_mendota_lake_watertemp_hi_res_Oct26_2017.csv', header=T, stringsAsFactors = F)
 LTERdf2$sample_time<-str_pad(LTERdf2$sample_time, 4, pad = "0")
 
 LTERdf2$datetime<-as.POSIXct(paste(LTERdf2$sampledate, LTERdf2$sample_time, sep=" "), format='%Y-%m-%d %H%M')
@@ -128,7 +128,7 @@ mtext(expression(paste("Water temperature (", degree, "C)", sep="")), 4, -6)
 dev.off()
 
 
-LTERmet<-read.csv('Data/sensor_mendota_lake_met_hourly_Oct20_2017.csv', header=T, stringsAsFactors = F)
+LTERmet<-read.csv('Data/sensor_mendota_lake_met_hourly_Oct26_2017.csv', header=T, stringsAsFactors = F)
 LTERmet$sample_time<-str_pad(LTERmet$hour, 4, pad = "0")
 
 LTERmet$datetime<-as.POSIXct(paste(LTERmet$sampledate, LTERmet$sample_time, sep=" "), format='%Y-%m-%d %H%M')
