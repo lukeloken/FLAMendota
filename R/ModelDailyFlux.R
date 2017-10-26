@@ -3,6 +3,10 @@
 # ################################################################
 
 library(rgdal)
+library(animation)
+library(magick)
+
+
 
 #load atmosphere data
 Atm<-readRDS('Data/FlameBuoyAtmMeasurements.rds')
@@ -127,6 +131,11 @@ CO2Fluxbreaks<-seq(CO2FluxRange[1],CO2FluxRange[2], length.out=99)
 CH4FluxRange<-range(Fluxmatrix[,,'CH4'])
 CH4Fluxbreaks<-seq(CH4FluxRange[1],CH4FluxRange[2], length.out=99)
 
+#Empty lists to fill with images
+plot.co2.conc<-list()
+plot.ch4.conc<-list()
+plot.co2.flux<-list()
+plot.ch4.flux<-list()
 
 
 time=dailydates[1]
@@ -135,22 +144,84 @@ for (time in dailydates){
   date_name<-date_names[daynumber]
   
   png(paste('Figures/DailyCO2Movie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(subsetKlist[[daynumber]], zcol='CO2Conc', at=CO2breaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
+  plot.co2.conc[[daynumber]]<-spplot(subsetKlist[[daynumber]], zcol='CO2Conc', at=CO2breaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name))
+  print(plot.co2.conc[[daynumber]])
   dev.off()
   
   png(paste('Figures/DailyCH4Movie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(subsetKlist[[daynumber]], zcol='CH4Conc', at=CH4breaks,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
+  plot.ch4.conc[[daynumber]]<-spplot(subsetKlist[[daynumber]], zcol='CH4Conc', at=CH4breaks,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name))
+  print(plot.co2.conc[[daynumber]])
   dev.off()
 
   png(paste('Figures/DailyCO2FluxMovie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(subsetKlist[[daynumber]], zcol='CO2Flux', at=CO2Fluxbreaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+  plot.co2.flux[[daynumber]]<-(spplot(subsetKlist[[daynumber]], zcol='CO2Flux', at=CO2Fluxbreaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+  print(plot.co2.flux[[daynumber]])
   dev.off()
   
   png(paste('Figures/DailyCH4FluxMovie2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-  print(spplot(subsetKlist[[daynumber]], zcol='CH4Flux', at=CH4Fluxbreaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+  plot.ch4.flux[[daynumber]]<-(spplot(subsetKlist[[daynumber]], zcol='CH4Flux', at=CH4Fluxbreaks, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+  print(plot.ch4.flux[[daynumber]])
   dev.off()
 
 }
+
+#CO2 Concentration Annimation
+img1 <- image_graph(600, 500, res = 72)
+p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+# p <- for (i in 1:49) {
+  print(plot.co2.conc[[i]])}
+out<-print(p)
+dev.off()
+
+img1 <- image_background(image_trim(img1), 'white')
+animation <- image_animate(img1, fps = 1)
+# print(animation)
+image_write(animation, "Figures/Animations/CO2ConcentrationWeekly.gif")
+
+#CH4 Concentration Annimation
+img1 <- image_graph(600, 500, res = 72)
+p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+  # p <- for (i in 1:49) {
+  print(plot.ch4.conc[[i]])}
+out<-print(p)
+dev.off()
+
+img1 <- image_background(image_trim(img1), 'white')
+animation <- image_animate(img1, fps = 1)
+# print(animation)
+image_write(animation, "Figures/Animations/CH4ConcentrationWeekly.gif")
+
+#CO2 Flux Annimation
+img1 <- image_graph(600, 500, res = 72)
+p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+  # p <- for (i in 1:49) {
+  print(plot.co2.flux[[i]])}
+out<-print(p)
+dev.off()
+
+img1 <- image_background(image_trim(img1), 'white')
+animation <- image_animate(img1, fps = 1)
+# print(animation)
+image_write(animation, "Figures/Animations/CO2FluxWeekly.gif")
+
+#CH4 Flux Annimation
+img1 <- image_graph(600, 500, res = 72)
+p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+  # p <- for (i in 1:49) {
+  print(plot.ch4.flux[[i]])}
+out<-print(p)
+dev.off()
+
+img1 <- image_background(image_trim(img1), 'white')
+animation <- image_animate(img1, fps = 1)
+# print(animation)
+image_write(animation, "Figures/Animations/CH4FluxWeekly.gif")
+
+
+#End Animations
+
+
+
 
 imagedates<-c('16940', '17031', '17059', '17114')
 time=imagedates[1]
