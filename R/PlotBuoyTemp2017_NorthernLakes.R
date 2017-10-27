@@ -145,39 +145,3 @@ axis(4, las=1, col.ticks=colors[2], col.axis=colors[2])
 
 dev.off()
 
-
-# With Oxygen
-
-png('Figures/TroutAirTempWindDO2017.png', width=7.15, height=4.5, units='in', res=600, bg='white')
-par(pch=16)
-par(ps=10)
-par(mfrow=c(3,1))
-par(mar = c(0,3.5,0.5,7.5),mgp=c(1.5,0.4,0), oma=c(1.5,0,0,0), tck=-0.02)
-par(lend=2)
-
-plot(LTERmet_subset$datetime, LTERmet_subset$avg_air_temp, type='l', xlab='', ylab='', las=1, xaxs='i', yaxt='n', col=colors[1], lwd=2, xaxt='n')
-axis(1, labels=NA, at=xticks)
-axis(4, las=1,  col.ticks=colors[1], col.axis=colors[1])
-mtext(expression(paste('Air temperature (', degree, 'C)')), 4, 2, col=colors[1])
-par(new=T)
-plot(LTERmet_subset$datetime, LTERmet_subset$avg_air_temp*9/5+32, type='n', xlab='', ylab='', axes=F, xaxs='i')
-axis(4, las=1, line=4, col.axis=colors[1], col.ticks=colors[1])
-mtext(expression(paste('(', degree, 'F)')), 4, 5.5, col=colors[1])
-
-# par(new=T)
-plot(LTERmet_subset$datetime, LTERmet_subset$avg_wind_speed, type='l', xlab='', ylab='', las=1, xaxs='i', col=colors[2], yaxt='n', lwd=2, xaxt='n')
-axis(1, labels=NA, at=xticks)
-mtext(expression(paste('Wind speed (m s'^'-1', ')')), 4, 2, col=colors[2])
-axis(4, las=1, col.ticks=colors[2], col.axis=colors[2])
-
-plot(LTERmet_subset$datetime, LTERmet_subset$avg_opt_dosat_raw, type='l', xlab='', ylab='', las=1, xaxs='i', yaxt='n', col=colors[3], lwd=2, xaxt='n')
-
-axis(1, labels=xlabels, at=xticks)
-mtext(expression(paste('DO (% sat)')), 4, 2, col=colors[3])
-axis(4, las=1,  col.ticks=colors[3], col.axis=colors[3])
-
-abline(v=cleandate, lty=3)
-text(x=cleandate, y=mean(par('usr')[4])-50, 'sensor cleaned', srt=0, pos=4)
-
-dev.off()
-
