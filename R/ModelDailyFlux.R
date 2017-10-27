@@ -165,58 +165,67 @@ for (time in dailydates){
 
 }
 
+img <- image_graph(480, 400, res = 48)
+rate<-4
 #CO2 Concentration Annimation
-img1 <- image_graph(600, 500, res = 72)
-p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+img1 <- img
+p <- for (i in seq(1, length(plot.co2.conc), 1)) {
 # p <- for (i in 1:49) {
   print(plot.co2.conc[[i]])}
 out<-print(p)
 dev.off()
 
 img1 <- image_background(image_trim(img1), 'white')
-animation <- image_animate(img1, fps = 1)
+animation <- image_animate(img1, fps = rate)
 # print(animation)
-image_write(animation, "Figures/Animations/CO2ConcentrationWeekly.gif")
+image_write(animation, "Figures/Animations/CO2ConcentrationDaily.gif")
+rm(list=c('img1', 'animation', 'out', 'p'))
+dev.off()
 
 #CH4 Concentration Annimation
-img1 <- image_graph(600, 500, res = 72)
-p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+img1 <- img
+p <- for (i in seq(1, length(plot.ch4.conc), 1)) {
   # p <- for (i in 1:49) {
   print(plot.ch4.conc[[i]])}
 out<-print(p)
 dev.off()
 
 img1 <- image_background(image_trim(img1), 'white')
-animation <- image_animate(img1, fps = 1)
+animation <- image_animate(img1, fps = rate)
 # print(animation)
-image_write(animation, "Figures/Animations/CH4ConcentrationWeekly.gif")
+image_write(animation, "Figures/Animations/CH4ConcentrationDaily.gif")
+rm(list=c('img1', 'animation', 'out', 'p'))
+dev.off()
 
 #CO2 Flux Annimation
-img1 <- image_graph(600, 500, res = 72)
-p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+img1 <- img
+p <- for (i in seq(1, length(plot.co2.flux), 1)) {
   # p <- for (i in 1:49) {
   print(plot.co2.flux[[i]])}
 out<-print(p)
 dev.off()
 
 img1 <- image_background(image_trim(img1), 'white')
-animation <- image_animate(img1, fps = 1)
+animation <- image_animate(img1, fps = 4)
 # print(animation)
-image_write(animation, "Figures/Animations/CO2FluxWeekly.gif")
+image_write(animation, "Figures/Animations/CO2FluxDaily.gif")
+rm(list=c('img1', 'animation', 'out', 'p'))
+dev.off()
 
 #CH4 Flux Annimation
-img1 <- image_graph(600, 500, res = 72)
-p <- for (i in seq(1, length(plot.ch4.conc), 7)) {
+img1 <- img
+p <- for (i in seq(1, length(plot.ch4.flux), 1)) {
   # p <- for (i in 1:49) {
   print(plot.ch4.flux[[i]])}
 out<-print(p)
 dev.off()
 
 img1 <- image_background(image_trim(img1), 'white')
-animation <- image_animate(img1, fps = 1)
+animation <- image_animate(img1, fps = 4)
 # print(animation)
-image_write(animation, "Figures/Animations/CH4FluxWeekly.gif")
-
+image_write(animation, "Figures/Animations/CH4FluxDaily.gif")
+rm(list=c('img1', 'animation', 'out', 'p'))
+dev.off()
 
 #End Animations
 
