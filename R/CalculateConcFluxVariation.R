@@ -105,6 +105,8 @@ mean(Q95CH4flux-Q5CH4flux)
 
 summary(data.frame(minCH4flux, meanCH4flux, maxCH4flux))
 
+mean(meanCO2flux)/mean(meanCH4flux)
+
 # Cumulative flux
 # Multiple by pixel size to get annual emission estimate
 # (mmol per Lake Mendota per 249 days)
