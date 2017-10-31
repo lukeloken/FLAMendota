@@ -26,16 +26,20 @@ co2conc<-expression(paste(CO[2], " concentration (", mu, "M)", sep=""))
 ch4conc<-expression(paste(CH[4], " concentration (", mu, "M)", sep=""))
 co2flux<-expression(paste(CO[2], " efflux (mmol m"^"-2", " d"^"-1", ")", sep=""))
 ch4flux<-expression(paste(CH[4], " efflux (mmol m"^"-2", " d"^"-1", ")", sep=""))
+co2flux_abs<-expression(paste("|", CO[2], " efflux| (mmol m"^"-2", " d"^"-1", ")", sep=""))
+ch4flux_abs<-expression(paste("|", CH[4], " efflux| (mmol m"^"-2", " d"^"-1", ")", sep=""))
+
+
 
 #plot 1 (k vs co2 flux)
 commonTheme = list(labs(color="Density",fill="Density",
                         x=k,
-                        y=co2flux),
+                        y=co2flux_abs),
                    theme_bw(),
                    theme(legend.position=c(0.15,0.75)))
 
-p1= ggplot(flux_df, aes(x=k,y=CO2Flux))  + 
-    ylim(-50,300) + 
+p1= ggplot(flux_df, aes(x=k,y=abs(CO2Flux)))  + 
+    ylim(0,300) + 
     xlim(0,38) +
     geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
     geom_point(alpha=0.04, colour="gray80") +
@@ -47,11 +51,11 @@ p1= ggplot(flux_df, aes(x=k,y=CO2Flux))  +
 #plot 2 (k vs ch4 flux)
 commonTheme = list(labs(color="Density",fill="Density",
                         x=k,
-                        y=ch4flux),
+                        y=ch4flux_abs),
                    theme_bw(),
                    theme(legend.position=c(0.15,0.75)))
 
-p2= ggplot(flux_df, aes(x=k,y=CH4Flux))  + 
+p2= ggplot(flux_df, aes(x=k,y=abs(CH4Flux)))  + 
   ylim(0,12) + 
   xlim(0,38) +
   geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
@@ -64,7 +68,7 @@ p2= ggplot(flux_df, aes(x=k,y=CH4Flux))  +
 #plot 3 (co2 conc vs co2 flux)
 commonTheme = list(labs(color="Density",fill="Density",
                         x=co2conc,
-                        y=""),
+                        y=co2flux),
                    theme_bw(),
                    theme(legend.position=c(0.15,0.75)))
 
@@ -81,7 +85,7 @@ p3= ggplot(flux_df, aes(x=CO2Conc,y=CO2Flux))  +
 #plot 4 (ch4 conc vs ch4 flux)
 commonTheme = list(labs(color="Density",fill="Density",
                         x=ch4conc,
-                        y=""),
+                        y=ch4flux),
                    theme_bw(),
                    theme(legend.position=c(0.15,0.75)))
 
@@ -100,6 +104,15 @@ grid.arrange(p1,p3,p2,p4, nrow=2, ncol=2)
 
 dev.off()
 
+co2kmodel<-lm(abs(flux_df$CO2Flux)~flux_df$k)
+ch4kmodel<-lm(abs(flux_df$CH4Flux)~flux_df$k)
+co2concmodel<-lm(flux_df$CO2Flux~flux_df$CO2Conc)
+ch4concmodel<-lm(flux_df$CH4Flux~flux_df$CH4Conc)
+
+rco2k<-sqrt(summary(co2kmodel)$r.squared)
+rch4k<-sqrt(summary(ch4kmodel)$r.squared)
+rco2conc<-sqrt(summary(co2concmodel)$r.squared)
+rch4conc<-sqrt(summary(ch4concmodel)$r.squared)
 
 df <- ldply(allpoints, data.frame)
 str(df)
