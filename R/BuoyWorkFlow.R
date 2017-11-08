@@ -39,7 +39,7 @@ par(lend=2)
 xticks<-seq(ceiling_date(min(BuoyData2016$sampledate), "months"),floor_date(max(BuoyData2016$sampledate), "months"), by='months')
 xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
 
-TempHeatTS(BuoyData2016, xticks, xlabels)
+TempHeatTS(BuoyData2016, xticks, xlabels, td=F)
 mtext(expression(paste("Temperature (", degree, "C)", sep="")), 4, -6)
 
 dev.off()
