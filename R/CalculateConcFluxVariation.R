@@ -105,6 +105,7 @@ mean(Q95CH4flux-Q5CH4flux)
 
 summary(data.frame(minCH4flux, meanCH4flux, maxCH4flux))
 
+mean(meanCO2conc)/mean(meanCH4conc)
 mean(meanCO2flux)/mean(meanCH4flux)
 
 # Cumulative flux
