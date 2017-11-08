@@ -7,7 +7,6 @@ library(animation)
 library(magick)
 
 
-
 #load atmosphere data
 Atm<-readRDS('Data/FlameBuoyAtmMeasurements.rds')
 atmCO2<-median(Atm$XCO2Dppm)
@@ -251,6 +250,7 @@ CH4Fluxbreaks2<-seq(CH4FluxRange2[1],CH4FluxRange2[2], length.out=99)
 
 
 
+
 for (time in imagedates){
   daynumber<-which(time==dailydates)
   date_name<-date_names[daynumber]
@@ -271,6 +271,9 @@ for (time in imagedates){
     png(paste('Figures/MultiMapPanelForPub/CH4Conc/vertical', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
     print(spplot(subsetKlist[[daynumber]], zcol='CH4Conc', at=CH4breaks2, colorkey = list(space = "right", height = 0.9, width=2), sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F)))
     dev.off()
+    
+
+    
     
   }
   
@@ -297,6 +300,15 @@ for (time in imagedates){
 PixelSummary<-subsetKlist[[daynumber]]
 PixelSummary$CH4Conc<-colMeans(ConcArray[,,c('CH4uM_t')])
 PixelSummary$CO2Conc<-colMeans(ConcArray[,,c('CO2uM_t')])
+PixelSummary$SPC<-colMeans(ConcArray[,,c('SPCuScm')])
+PixelSummary$fDOM<-colMeans(ConcArray[,,c('fDOMRFU')])
+PixelSummary$BGA<-colMeans(ConcArray[,,c('BGAPCgL')])
+PixelSummary$Chl<-colMeans(ConcArray[,,c('ChlAugL')])
+PixelSummary$ODO<-colMeans(ConcArray[,,c('ODOsat')])
+PixelSummary$pH<-colMeans(ConcArray[,,c('pH')])
+PixelSummary$Temp<-colMeans(ConcArray[,,c('TempC')])
+PixelSummary$Turb<-colMeans(ConcArray[,,c('TurbFNU')])
+
 PixelSummary$CH4Flux<-colMeans(Fluxmatrix[,,'CH4'])
 PixelSummary$CO2Flux<-colMeans(Fluxmatrix[,,'CO2'])
 PixelSummary$k600<-colMeans(Kmatrix[,], na.rm=T)
@@ -323,6 +335,43 @@ dev.off()
 png(paste('Figures/CH4Flux2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
 print(spplot(PixelSummary, zcol='CH4Flux', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab='2016 Average'))
 dev.off()
+
+# non carbon plots
+png(paste('Figures/Temp2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='Temp', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Temperature (", degree, "C)")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/SPC2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='SPC', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Specific Conductivity (", mu, "S cm"^"-1", ")")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/ODO2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='ODO', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression("Dissolved Oxygen (% sat)")), xlab='2016 Average')
+dev.off()
+
+png(paste('Figures/BGA2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='BGA', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Phycocyanin (", mu, "g L"^"-1", ")")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/ChlA2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='Chl', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Chlorophyll ", italic("a"), " (", mu, "g L"^"-1", ")")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/fDOMFlux2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='fDOM', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("fDOM (RFU)")), xlab='2016 Average'))
+dev.off()
+
+png(paste('Figures/Turb2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='Turb', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("Turbidity (FNU)")), xlab='2016 Average'))
+dev.off()
+
+
+png(paste('Figures/pH2016Average.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+print(spplot(PixelSummary, zcol='pH', cuts=cuts, colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste("pH")), xlab='2016 Average'))
+dev.off()
+
+
+
 
 png(paste('Figures/Historgram_2016Average.png', sep=""), width=3, height=10, units='in', res=200, bg='white')
 par(pch=16)
