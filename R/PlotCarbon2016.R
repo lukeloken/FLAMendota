@@ -42,6 +42,9 @@ DavidBuoyDaily$Date<-as.Date(DavidBuoyDaily$Date)
 LakeFlux<-readRDS(file='Data/DailyConcFluxStats.rds')
 BuoyFlux<-readRDS(file='Data/DailyBuoyConcFluxStats.rds')
 
+#Flux and concentration data by pixel and day
+ConcArray<-readRDS('Data/ConcArray.rds')
+FluxArray<-readRDS('Data/FluxArray.rds')
 
 # ################
 # Lake wide Flame Data
@@ -1061,4 +1064,221 @@ mtext(expression(paste('Lake-wide mean  ', CH[4], ' efflux (mmol m'^'-2', ')', s
 mtext(expression(paste('Buoy ', CH[4], ' efflux (mmol m'^'-2', ')', sep="")), 1, 1.5)
 
 dev.off()
+
+
+
+
+#Cumulative Flux 5, 25, 50, 75, 95 percentiles
+png('Figures/CumulativeCO2CH4Flux_percentiles.png', width=3.5, height=6, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(1,4,.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(2,0,0,0))
+par(lend=2)
+lwd=c(1,2,2)
+lty=c(1,2,3)
+colors<-add.alpha(c('darkblue', 'darkred'), alpha=0.6)
+colors[3]<-'darkgrey'
+colors<-c(add.alpha('darkblue', alpha=0.6), 'black', 'grey85', 'magenta', 'grey55')
+colors<-c(add.alpha('darkblue', alpha=0.6), 'black', 'grey85', 'orange', 'grey55', 'aquamarine2')
+
+xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+#CO2
+ylim<-range(c(cumsum(LakeFlux$CO2_Flux_50.), cumsum(LakeFlux$CO2_Flux_95.), cumsum(LakeFlux$CO2_Flux_5.), cumsum(BuoyFlux$CO2Buoy_Flux_Mean)), na.rm=T)
+
+plot(LakeFlux$date_name, cumsum(LakeFlux$CO2_Flux_50.), type="l", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1], ylim=ylim)
+
+abline(h=0, lty=lty[3], col=colors[3])
+
+# Polygon of 5-95%
+polyx<-c(LakeFlux$date_names, rev(LakeFlux$date_names))
+polyy90<-c(cumsum(LakeFlux$CO2_Flux_5.), rev(cumsum(LakeFlux$CO2_Flux_95.)))
+polygon(polyx, polyy90, border=colors[3], col=colors[3])
+
+# Polygon of IQR
+polyy<-c(cumsum(LakeFlux$CO2_Flux_25.), rev(cumsum(LakeFlux$CO2_Flux_75.)))
+polygon(polyx, polyy, border=colors[5], col=colors[5])
+
+points(LakeFlux$date_name, cumsum(LakeFlux$CO2_Flux_50.), type="l", col=colors[2], lty=lty[1], lwd=lwd[1])
+points(LakeFlux$date_name, cumsum(LakeFlux$CO2_Flux_Mean), type="l", col=colors[6], lty=lty[1], lwd=lwd[2])
+
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CO2Buoy_Flux_Mean), type="l", col=colors[4], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CO[2], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+box(which='plot')
+
+#legend
+usr<-par('usr')
+yscale<-diff(usr[3:4])/8
+box.y<-usr[4]-yscale*seq(0.5,4, length.out=7)
+
+xscale<-diff(usr[1:2])/15
+box.x<-usr[1]+xscale*seq(0.7,2, length.out=2)
+
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[5],2), rep(box.y[1],2)), col=colors[3], border=colors[3], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=colors[5], border=colors[5], lwd=2)
+polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=1)
+
+lines(x=box.x, y=rep(box.y[7], 2), lty=2, col=colors[4], type="l", pch=16, lwd=2)
+lines(x=box.x, y=rep(box.y[6], 2), lty=1, type="l", col=colors[6], lwd=2)
+
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])), expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'Lake-wide mean', "Buoy"), pos=4)
+
+
+#CH4
+ylim<-range(c(cumsum(LakeFlux$CH4_Flux_50.), cumsum(LakeFlux$CH4_Flux_95.), cumsum(LakeFlux$CH4_Flux_5.), cumsum(BuoyFlux$CH4Buoy_Flux_Mean)), na.rm=T)
+
+plot(LakeFlux$date_name, cumsum(LakeFlux$CH4_Flux_50.), type="l", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1], ylim=ylim)
+
+abline(h=0, lty=lty[3], col=colors[3])
+
+# Polygon of 5-95%
+polyx<-c(LakeFlux$date_names, rev(LakeFlux$date_names))
+polyy90<-c(cumsum(LakeFlux$CH4_Flux_5.), rev(cumsum(LakeFlux$CH4_Flux_95.)))
+polygon(polyx, polyy90, border=colors[3], col=colors[3])
+
+# Polygon of IQR
+polyy<-c(cumsum(LakeFlux$CH4_Flux_25.), rev(cumsum(LakeFlux$CH4_Flux_75.)))
+polygon(polyx, polyy, border=colors[5], col=colors[5])
+
+#Mean and medians
+points(LakeFlux$date_name, cumsum(LakeFlux$CH4_Flux_50.), type="l", col=colors[2], lty=lty[1], lwd=lwd[1])
+points(LakeFlux$date_name, cumsum(LakeFlux$CH4_Flux_Mean), type="l", col=colors[6], lty=lty[1], lwd=lwd[2])
+
+
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CH4Buoy_Flux_Mean), type="l", col=colors[4], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CH[4], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+axis(1, at=xticks, labels=xlabels)
+
+box(which='plot')
+
+
+mtext('Date', 1, 1.5)
+
+dev.off()
+
+
+linecolor<-add.alpha('grey5', 0.02)
+for (gas in c('CO2uM_t', 'CH4uM_t')){
+  if (gas=='CO2uM_t'){ 
+    name2<-'CO2uM_tau'
+    ylab<-expression(paste(CO[2], ' (', mu, 'M)'))
+  }
+  if (gas=='CH4uM_t'){
+    name2<-'CH4uM_tau'
+    ylab<-expression(paste(CH[4], ' (', mu, 'M)'))}
+  
+  #empty plot
+  plot(date_names,ConcArray[,1,gas], type='n', ylim=range(ConcArray[,,gas]), ylab='')
+  mtext(ylab, 2,2)
+  #loop through pixels
+  for ( pixel in 1:988){
+    points(date_names,ConcArray[,pixel,gas], type='l', col=linecolor)
+    if (pixel==988){
+      points(Buoy_daily$Date, Buoy_daily[,c(name2)], type="o", col=colors[4], pch=16, cex=1, lty=2)
+    }
+  }
+}
+
+
+for (gas in c('CO2', 'CH4')){
+  if (gas=='CO2'){
+    name2<-'CO2Buoy_Flux_Mean'
+    ylab<-expression(paste(CO[2], ' efflux (mmol m'^'-2', ' d'^'-1', ')'))
+  }
+  if (gas=='CH4'){
+    name2<-'CH4Buoy_Flux_Mean'
+    ylab<-expression(paste(CH[4], ' efflux (mmol m'^'-2', ' d'^'-1', ')'))}
+  
+  #empty plot
+  plot(date_names,FluxArray[,1,gas], type='n', ylim=range(FluxArray[,,gas]), ylab='')
+  mtext(ylab, 2,2)
+  abline(h=0, col=colors[5], lty=3)
+  #loop through pixels
+  for ( pixel in 1:988){
+    points(date_names,FluxArray[,pixel,gas], type='l', col=linecolor, lwd=1)
+    if (pixel==988){
+      points(BuoyFlux$date_names, BuoyFlux[,c(name2)],  type="l", col=colors[4], pch=16, cex=1, lty=1, lwd=1.5)
+    }
+  }
+}
+
+
+
+
+
+#Cumulative Flux at each pixel percentiles
+png('Figures/CumulativeCO2CH4Flux_bypixel.png', width=3.5, height=6, units='in', res=200, bg='white')
+par(pch=16)
+par(ps=12)
+par(mfrow=c(2,1))
+par(mar = c(1,4,.5,0.5),mgp=c(2.5,0.4,0),tck=-0.02)
+par(oma=c(2,0,0,0))
+par(lend=2)
+lwd=c(1,2,2)
+lty=c(1,2,3)
+colors<-add.alpha(c('red', 'red'), alpha=0.8)
+colors[3]<-add.alpha('grey5', 0.08)
+#colors<-c(add.alpha('darkblue', alpha=0.6), 'black', 'grey85', 'orangered2', 'grey55')
+
+xticks<-seq(ceiling_date(min(LakeFlux$date_names), "months"),floor_date(max(LakeFlux$date_names), "months"), by='months')
+xlabels<-paste(month(xticks, label=TRUE, abbr=T), " 1", sep="")
+
+
+#CO2
+ylim<-range(c(cumsum(LakeFlux$CO2_Flux_50.), cumsum(LakeFlux$CO2_Flux_95.), cumsum(LakeFlux$CO2_Flux_5.), cumsum(BuoyFlux$CO2Buoy_Flux_Mean)), na.rm=T)
+
+plot(LakeFlux$date_name, cumsum(LakeFlux$CO2_Flux_50.), type="n", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1], ylim=ylim)
+
+abline(h=0, lty=lty[3], col='grey50')
+
+for ( pixel in 1:988){
+  points(LakeFlux$date_name,cumsum(FluxArray[,pixel,'CO2']), type='l', col=colors[3], lwd=1)}
+
+points(LakeFlux$date_name, cumsum(LakeFlux$CO2_Flux_Mean), type="l", col=colors[1], lty=lty[1], lwd=lwd[2], ylim=ylim)
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CO2Buoy_Flux_Mean), type="l", col=colors[1], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CO[2], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+
+legend('topleft', c('Single point', 'Lake-wide mean', 'Buoy'), col=c('grey60', colors[1], colors[1]), lty=c(1, lty[1:2]), bty="n", lwd=lwd)
+
+box(which='plot')
+
+#CH4
+ylim<-range(c(cumsum(LakeFlux$CH4_Flux_50.), cumsum(LakeFlux$CH4_Flux_95.), cumsum(LakeFlux$CH4_Flux_5.), cumsum(BuoyFlux$CH4Buoy_Flux_Mean)), na.rm=T)
+
+plot(LakeFlux$date_name, cumsum(LakeFlux$CH4_Flux_50.), type="n", axes=F, ylab="", xlab="", col=colors[2], lty=lty[1], lwd=lwd[1], ylim=ylim)
+
+abline(h=0, lty=lty[3], col='grey50')
+
+for ( pixel in 1:988){
+  points(LakeFlux$date_name,cumsum(FluxArray[,pixel,'CH4']), type='l', col=colors[3], lwd=1)}
+
+points(LakeFlux$date_name, cumsum(LakeFlux$CH4_Flux_Mean), type="l", col=colors[2], lty=lty[1], lwd=lwd[2], ylim=ylim)
+points(BuoyFlux$date_name, cumsum(BuoyFlux$CH4Buoy_Flux_Mean), type="l", col=colors[2], lty=lty[2], lwd=lwd[2])
+
+mtext(expression(paste('Cumulative ', CH[4], ' efflux (mmol m'^'-2', ')', sep="")), 2, 2.5)
+axis(2, las=1)
+axis(1, at=xticks, labels=NA)
+axis(1, at=xticks, labels=xlabels)
+
+
+box(which='plot')
+
+
+mtext('Date', 1, 1.5)
+
+dev.off()
+
 
