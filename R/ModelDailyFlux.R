@@ -5,6 +5,7 @@
 library(rgdal)
 library(animation)
 library(magick)
+library(LakeMetabolizer)
 
 
 #load atmosphere data
@@ -62,59 +63,128 @@ Atmmatrix<-array(data=NA, dim=c(length(dailydates), nrow(coordinates), 2), dimna
 
 #  Flux matrix
 Fluxmatrix<-Atmmatrix
-
+AtmCH4<-1.91
+AtmCO2<-400
 time=dailydates[1]
 for (time in dailydates){
   daynumber<-which(time==dailydates)
   date_name<-date_names[daynumber]
-  # DailyArray<-ConcArray[time,,]
+
+  #Make vectors of important variables
+  DailyTemp<-ConcArray[time,,c('TempC')]
   DailyCO2Sat<-ConcArray[time,,c('CO2St_t')]
   DailyCO2uM<-ConcArray[time,,c('CO2uM_t')]
-  
-  DailyCO2Diff<-DailyCO2uM-100*(DailyCO2uM/DailyCO2Sat)
-  
   DailyCH4Sat<-ConcArray[time,,c('CH4St_t')]
   DailyCH4uM<-ConcArray[time,,c('CH4uM_t')]
   
-  DailyCH4Diff<-DailyCH4uM-100*(DailyCH4uM/DailyCH4Sat)
+  #calcualte theoretical concentration in water using atmosphere concentration
+  DailyCO2Eq<-gas.at.sat(DailyTemp, gas='CO2')
+  DailyCH4Eq<-gas.at.sat(DailyTemp, gas='CH4')
   
-  Atmmatrix[time,,'CO2']<-DailyCO2Diff
-  Atmmatrix[time,,'CH4']<-DailyCH4Diff
-  
-  #Calculate flux (multiple by .24 to convert to mmol/m2/day)
-  # Concentration is in (umol per liter)
+  # convert from k600 to kgas using LakeMetabolizer and temperature
   # k is in (cm/hr)
-  # Double check all units
-  Fluxmatrix[time,,'CO2']<-Atmmatrix[time,,'CO2']*Kmatrix[time,]*.24
-  Fluxmatrix[time,,'CH4']<-Atmmatrix[time,,'CH4']*Kmatrix[time,]*.24
+  # Temp is in (deg C)
+  KCO2<-k600.2.kGAS.base(Kmatrix[time,], DailyTemp, 'CO2')
+  KCH4<-k600.2.kGAS.base(Kmatrix[time,], DailyTemp, 'CH4')
   
+  # Calculate flux (multiple by .24 to convert to mmol/m2/day)
+  # Concentration is in (umol per liter)
+  DailyCO2Flux<-(DailyCO2uM-DailyCO2Eq)*KCO2*.24
+  DailyCH4Flux<-(DailyCH4uM-DailyCH4Eq)*KCH4*.24
+  
+  #Save concentration and fluxes to list
   subsetKlist[[daynumber]]$CO2Conc<-DailyCO2uM
   subsetKlist[[daynumber]]$CH4Conc<-DailyCH4uM
   
-  subsetKlist[[daynumber]]$CO2Flux<-Fluxmatrix[time,,'CO2']
-  subsetKlist[[daynumber]]$CH4Flux<-Fluxmatrix[time,,'CH4']
+  subsetKlist[[daynumber]]$CO2Flux<-DailyCO2Flux
+  subsetKlist[[daynumber]]$CH4Flux<-DailyCH4Flux
   
+  Fluxmatrix[time,,'CO2']<-DailyCO2Flux
+  Fluxmatrix[time,,'CH4']<-DailyCH4Flux
   
   #Concentration maps
-#   png(paste('Figures/DailyCO2ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-#   print(spplot(subsetKlist[[daynumber]], zcol='CO2Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
-#   dev.off()
-#   
-#   png(paste('Figures/DailyCH4ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-#   print(spplot(subsetKlist[[daynumber]], zcol='CH4Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
-#   dev.off()
-#   
-#   
-#   png(paste('Figures/DailyCO2FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-#   print(spplot(subsetKlist[[daynumber]], zcol='CO2Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
-#   dev.off()
-#   
-#   png(paste('Figures/DailyCH4FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
-#   print(spplot(subsetKlist[[daynumber]], zcol='CH4Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
-#   dev.off()
-  
-}
+    png(paste('Figures/DailyCO2ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+    print(spplot(subsetKlist[[daynumber]], zcol='CO2Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
+    dev.off()
 
+    png(paste('Figures/DailyCH4ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+    print(spplot(subsetKlist[[daynumber]], zcol='CH4Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
+    dev.off()
+
+    #Flux maps
+    png(paste('Figures/DailyCO2FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+    print(spplot(subsetKlist[[daynumber]], zcol='CO2Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+    dev.off()
+
+    png(paste('Figures/DailyCH4FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+    print(spplot(subsetKlist[[daynumber]], zcol='CH4Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+    dev.off()
+
+}
+  
+  
+
+# # old version. save flux code from here and below
+# time=dailydates[1]
+# for (time in dailydates){
+#   daynumber<-which(time==dailydates)
+#   date_name<-date_names[daynumber]
+#   # DailyArray<-ConcArray[time,,]
+#   DailyTemp<-ConcArray[time,,c('TempC')]
+#   DailyCO2Sat<-ConcArray[time,,c('CO2St_t')]
+#   DailyCO2uM<-ConcArray[time,,c('CO2uM_t')]
+#   
+#   DailyCO2Diff<-DailyCO2uM-100*(DailyCO2uM/DailyCO2Sat)
+#   
+#   DailyCH4Sat<-ConcArray[time,,c('CH4St_t')]
+#   DailyCH4uM<-ConcArray[time,,c('CH4uM_t')]
+#   
+#   DailyCH4Diff<-DailyCH4uM-100*(DailyCH4uM/DailyCH4Sat)
+#   
+#   Atmmatrix[time,,'CO2']<-DailyCO2Diff
+#   Atmmatrix[time,,'CH4']<-DailyCH4Diff
+#   
+#   # Calculate flux (multiple by .24 to convert to mmol/m2/day)
+#   # convert from k600 to kgas using LakeMetabolizer and temperature
+#   # Concentration is in (umol per liter)
+#   # k is in (cm/hr)
+#   # Double check all units
+# 
+#   Fluxmatrix[time,,'CO2']<-Atmmatrix[time,,'CO2']*Kmatrix[time,]*.24
+#   Fluxmatrix[time,,'CH4']<-Atmmatrix[time,,'CH4']*Kmatrix[time,]*.24
+#   
+#   test<-Atmmatrix[time,,'CO2']*k600.2.kGAS.base(Kmatrix[time,], DailyTemp, 'CO2')*.24
+#   test2<-Atmmatrix[time,,'CH4']*k600.2.kGAS.base(Kmatrix[time,], DailyTemp, 'CH4')*.24
+#   
+#   subsetKlist[[daynumber]]$CO2Conc<-DailyCO2uM
+#   subsetKlist[[daynumber]]$CH4Conc<-DailyCH4uM
+#   
+#   subsetKlist[[daynumber]]$CO2Flux<-Fluxmatrix[time,,'CO2']
+#   subsetKlist[[daynumber]]$CH4Flux<-Fluxmatrix[time,,'CH4']
+#   
+#   
+#   #Concentration maps
+# #   png(paste('Figures/DailyCO2ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+# #   print(spplot(subsetKlist[[daynumber]], zcol='CO2Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " (", mu, "M)")), xlab=paste(date_name)))
+# #   dev.off()
+# #   
+# #   png(paste('Figures/DailyCH4ConcMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+# #   print(spplot(subsetKlist[[daynumber]], zcol='CH4Conc', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " (", mu, "M)")), xlab=paste(date_name)))
+# #   dev.off()
+# #   
+# #   
+# #   png(paste('Figures/DailyCO2FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+# #   print(spplot(subsetKlist[[daynumber]], zcol='CO2Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CO[2], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+# #   dev.off()
+# #   
+# #   png(paste('Figures/DailyCH4FluxMap2016/', date_name, '.png', sep=""), width=6, height=5, units='in', res=200, bg='white')
+# #   print(spplot(subsetKlist[[daynumber]], zcol='CH4Flux', cuts=20,  colorkey=TRUE, sp.layout=list(shoreline, col=1, fill=0, lwd=3, lty=1, first=F), main=expression(paste(CH[4], " efflux (mmol/m2/d)  ")), xlab=paste(date_name)))
+# #   dev.off()
+#   
+# }
+
+saveRDS(ConcArray, 'Data/ConcArray.rds')
+saveRDS(Fluxmatrix, 'Data/FluxArray.rds')
 
 #Set concentration and flux ranges
 # This way images are constant color ramp and more suitable for timeseries comparison. 
@@ -389,7 +459,7 @@ for (panel in c(5,6,8,7,9)){
   
   breaks<-seq(range[1], range[2], length.out=cuts)
  
-  hist(vector, breaks=breaks, col=colors, main='', yaxs="i", xlab="", las=1, ylab="")
+  hist(vector, breaks=breaks, col='lightgrey', main='', yaxs="i", xlab="", las=1, ylab="")
   mtext('Frequency', 2,-1.5, outer=T )
   mtext(name, 1,2)
   abline(h=0)
@@ -443,8 +513,7 @@ write.table(BuoyDailyStats , file='Data/DailyBuoyConcFluxStats.csv')
 
 hist(Fluxmatrix[,,'CO2'], breaks=40)
 hist(Fluxmatrix[,,'CH4'], breaks=40)
-hist(Atmmatrix[,,'CO2'], breaks=40)
-hist(Atmmatrix[,,'CH4'], breaks=40)
+
 
 summary(Fluxmatrix[,,'CO2'])
 mean((Fluxmatrix[,,'CO2']))
@@ -466,7 +535,7 @@ K<-1
 for (K in 1:length(subsetKlist)){
   dayKlist<-subsetKlist[[K]]
   name<-date_names[K]
-  writeOGR(dayKlist, dsn='Data/Shapefiles', layer=paste(name, '_C_Conc_Flux', sep=""), driver="ESRI Shapefile")
+  writeOGR(dayKlist, dsn='Data/Shapefiles', layer=paste(name, '_C_Conc_Flux', sep=""), driver="ESRI Shapefile", overwrite_layer=T)
 }
 
 
