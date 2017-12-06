@@ -4,6 +4,7 @@
 library(lubridate)
 library(stringr)
 source('R/AddAlpha.R')
+source('R/CalculateGasSaturation.R')
 
 # ################
 # Flame Buoy Data
@@ -232,7 +233,9 @@ axis(1, at=xticks, labels=xlabels)
 
 mtext(expression(paste(CO[2], " (", mu, "M)", sep="")), 2, 2)
 mtext('2016', 1, 1.5)
-abline(h=1, lty=3)
+
+CO2eq<-gas.at.sat(LGRList$Mean$TempC, gas='CO2')
+lines(LGRList$Mean$Date, CO2eq, type="l", lty=3)
 
 # Polygon of 5-95%
 polyx90<-c(LGRList$Q05$Date, rev(LGRList$Q95$Date))
