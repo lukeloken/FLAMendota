@@ -43,6 +43,22 @@ str(fluxmatrix)
 sd(fluxmatrix)
 
 
+#Create Summary Table
+tableout<-data.frame(name=c('CO2 conc', 'CO2 flux', 'CH4_conc', 'CH4_flux'), unit=rep(c('uM', 'mmol m-1 d-1'), 2))
+tableout$spatialmean<-NA
+tableout$spatialmin<-NA
+tableout$spatialmax<-NA
+tableout$spatialmean_sat<-NA
+tableout$spatialmin_sat<-NA
+tableout$spatialmax_sat<-NA
+tableout$perundersat<-NA
+tableout$CVmean<-NA
+tableout$Q5_95<-NA
+tableout$buoymean<-NA
+tableout$medperdiff<-NA
+tableout$spatialcumflux<-NA
+tableout$buoycumflux<-NA
+tableout$cumfluxerror<-NA
 
 
 sdCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,sd) 
@@ -51,14 +67,29 @@ minCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,min)
 maxCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,max)
 summary(data.frame(minCO2conc, meanCO2conc, maxCO2conc))
 
-
 Q5CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.05)
 Q95CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.95)
 mean(Q95CO2-Q5CO2)
 
+tableout[1,c('spatialmean')]<-mean(meanCO2conc)
+tableout[1,c('spatialmin')]<-min(minCO2conc)
+tableout[1,c('spatialmax')]<-max(maxCO2conc)
+tableout[1,c('Q5_95')]<-mean(Q95CO2-Q5CO2)
+tableout[1,c('CVmean')]<-mean(sdCO2conc/meanCO2conc)
+
 Q25CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.25)
 Q75CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.75)
 mean(Q75CO2-Q25CO2)
+
+meanCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,mean) 
+maxCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,max) 
+minCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,min) 
+summary(data.frame(minCO2Sat, meanCO2Sat, maxCO2Sat))
+
+tableout[1,c('spatialmean_sat')]<-mean(meanCO2Sat)
+tableout[1,c('spatialmin_sat')]<-min(minCO2Sat)
+tableout[1,c('spatialmax_sat')]<-max(maxCO2Sat)
+tableout[1,c('perundersat')]<-length(which(ConcArray[,,c('CO2St_t')]<100))/length(ConcArray[,,c('CO2St_t')])
 
 sdCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,sd) 
 meanCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,mean)
@@ -70,11 +101,30 @@ Q5CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.05)
 Q95CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.95)
 mean(Q95CH4-Q5CH4)
 
+tableout[3,c('spatialmean')]<-mean(meanCH4conc)
+tableout[3,c('spatialmin')]<-min(minCH4conc)
+tableout[3,c('spatialmax')]<-max(maxCH4conc)
+tableout[3,c('Q5_95')]<-mean(Q95CH4-Q5CH4)
+tableout[3,c('CVmean')]<-mean(sdCH4conc/meanCH4conc)
+
 Q25CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.25)
 Q75CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.75)
 mean(Q75CH4-Q25CH4)
 
+meanCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,mean) 
+maxCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,max) 
+minCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,min) 
+summary(data.frame(minCH4Sat, meanCH4Sat, maxCH4Sat))
 
+length(which(ConcArray[,,c('CH4St_t')]<100))/length(ConcArray[,,c('CO2St_t')])
+
+tableout[3,c('spatialmean_sat')]<-mean(meanCH4Sat)
+tableout[3,c('spatialmin_sat')]<-min(minCH4Sat)
+tableout[3,c('spatialmax_sat')]<-max(maxCH4Sat)
+tableout[3,c('perundersat')]<-length(which(ConcArray[,,c('CH4St_t')]<100))/length(ConcArray[,,c('CO2St_t')])
+
+
+#Flux
 
 sdCO2flux<-apply(fluxmatrix[,,'CO2'],1,sd) 
 meanCO2flux<-apply(fluxmatrix[,,'CO2'],1,mean)
@@ -92,6 +142,13 @@ mean(Q95CO2flux-Q5CO2flux)
 
 summary(data.frame(minCO2flux, meanCO2flux, maxCO2flux))
 
+tableout[2,c('spatialmean')]<-mean(meanCO2flux)
+tableout[2,c('spatialmin')]<-min(minCO2flux)
+tableout[2,c('spatialmax')]<-max(maxCO2flux)
+tableout[2,c('Q5_95')]<-mean(Q95CO2flux-Q5CO2flux)
+tableout[2,c('CVmean')]<-NA #Doesn't make sense for negative fluxes
+tableout[2,c('perundersat')]<-length(which(fluxmatrix[,,'CO2']<0))/length(fluxmatrix[,,'CO2'])
+
 sdCH4flux<-apply(fluxmatrix[,,'CH4'],1,sd) 
 meanCH4flux<-apply(fluxmatrix[,,'CH4'],1,mean)
 minCH4flux<-apply(fluxmatrix[,,'CH4'],1,min)
@@ -102,11 +159,19 @@ Q5CH4flux<-apply(fluxmatrix[,,'CH4'],1,quantile, probs=0.05)
 Q95CH4flux<-apply(fluxmatrix[,,'CH4'],1,quantile, probs=0.95)
 mean(Q95CH4flux-Q5CH4flux)
 
-
 summary(data.frame(minCH4flux, meanCH4flux, maxCH4flux))
+
+tableout[4,c('spatialmean')]<-mean(meanCH4flux)
+tableout[4,c('spatialmin')]<-min(minCH4flux)
+tableout[4,c('spatialmax')]<-max(maxCH4flux)
+tableout[4,c('Q5_95')]<-mean(Q95CH4flux-Q5CH4flux)
+tableout[4,c('CVmean')]<-mean(sdCH4flux/meanCH4flux)
+tableout[4,c('perundersat')]<-length(which(fluxmatrix[,,'CH4']<0))/length(fluxmatrix[,,'CH4'])
+
 
 mean(meanCO2conc)/mean(meanCH4conc)
 mean(meanCO2flux)/mean(meanCH4flux)
+
 
 # Cumulative flux
 # Multiple by pixel size to get annual emission estimate
@@ -142,17 +207,6 @@ plot(sdCH4flux/meanCH4flux)
 plot(sdCO2flux)
 plot(meanCO2flux)
 
-meanCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,mean) 
-maxCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,max) 
-minCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,min) 
-summary(data.frame(minCO2Sat, meanCO2Sat, maxCO2Sat))
-
-meanCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,mean) 
-maxCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,max) 
-minCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,min) 
-summary(data.frame(minCH4Sat, meanCH4Sat, maxCH4Sat))
-
-
 
 #Conc percent diff
 CH4ConcPerDiff<-100*abs((BuoyFlux$CH4Buoy_Conc_Mean-LakeFlux$CH4_Conc_Mean)/rowMeans(data.frame(BuoyFlux$CH4Buoy_Conc_Mean,LakeFlux$CH4_Conc_Mean)))
@@ -169,7 +223,11 @@ summary(BuoyFlux$CH4Buoy_Conc_Mean)
 summary(LakeFlux$CO2_Conc_Mean)
 summary(LakeFlux$CH4_Conc_Mean)
 
+tableout[1,c('buoymean')]<-mean(BuoyFlux$CO2Buoy_Conc_Mean)
+tableout[3,c('buoymean')]<-mean(BuoyFlux$CH4Buoy_Conc_Mean)
 
+tableout[1,c('medperdiff')]<-median(CO2ConcPerDiff)
+tableout[3,c('medperdiff')]<-median(CH4ConcPerDiff)
 
 
 #Flux
@@ -185,6 +243,24 @@ summary(BuoyFlux$CH4Buoy_Flux_Mean)
 
 summary(LakeFlux$CO2_Flux_Mean)
 summary(LakeFlux$CH4_Flux_Mean)
+
+tableout[2,c('buoymean')]<-mean(BuoyFlux$CO2Buoy_Flux_Mean)
+tableout[4,c('buoymean')]<-mean(BuoyFlux$CH4Buoy_Flux_Mean)
+
+tableout[2,c('medperdiff')]<-median(CO2PerDiff)
+tableout[4,c('medperdiff')]<-median(CH4PerDiff)
+
+tableout[2,c('spatialcumflux')]<-tableout[2,c('spatialmean')]*249*39.9/1000
+tableout[4,c('spatialcumflux')]<-tableout[4,c('spatialmean')]*249*39.9/1000
+
+tableout[2,c('buoycumflux')]<-tableout[2,c('buoymean')]*249*39.9/1000
+tableout[4,c('buoycumflux')]<-tableout[4,c('buoymean')]*249*39.9/1000
+
+tableout[c(2,4),c('cumfluxerror')]<-(tableout[c(2,4),c('buoycumflux')]-tableout[c(2,4),c('spatialcumflux')])/tableout[c(2,4),c('spatialcumflux')]
+
+
+write.table(tableout , file='Data/Table1.csv', row.names=F, sep=',')
+
 
 #Percent Error
 #Conc
@@ -302,6 +378,12 @@ CO2FluxLakeCum<-cumsum(LakeFlux$CO2_Flux_Mean)
 CO2FluxBuoyCum<-cumsum(BuoyFlux$CO2Buoy_Flux_Mean)
 CH4FluxLakeCum<-cumsum(LakeFlux$CH4_Flux_Mean)
 CH4FluxBuoyCum<-cumsum(BuoyFlux$CH4Buoy_Flux_Mean)
+
+#Annual emissions buoy vs lake
+CO2FluxBuoyCum[length(CO2FluxBuoyCum)]*39.9
+CO2FluxLakeCum[length(CO2FluxLakeCum)]*39.9
+CH4FluxBuoyCum[length(CH4FluxBuoyCum)]*39.9
+CH4FluxLakeCum[length(CH4FluxLakeCum)]*39.9
 
 #Plot Cumulative Differneces
 plot((CH4FluxBuoyCum-CH4FluxLakeCum)/CH4FluxLakeCum)
