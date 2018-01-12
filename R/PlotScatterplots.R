@@ -168,8 +168,8 @@ baseplot +   geom_point(colour=colors[3]) +
 
 png("Figures/Mendota_CO2vO2.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
-                        x="O2 (%Sat)",
-                        y="CO2 (%Sat)"),
+                        x=expression(paste(O[2]," (% saturation)")),
+                        y=expression(paste(CO[2], " (% saturation)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -213,7 +213,7 @@ dev.off()
 png("Figures/Mendota_CO2vpH.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
                         x="pH",
-                        y="CO2 (uM)"),
+                        y=expression(paste(CO[2], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -231,7 +231,7 @@ dev.off()
 png("Figures/Mendota_CH4vpH.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
                         x="pH",
-                        y="CH4 (uM)"),
+                        y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -249,7 +249,7 @@ dev.off()
 png("Figures/Mendota_CH4vBGA.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
                         x="BGA (RFU)",
-                        y="CH4 (uM)"),
+                        y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -266,7 +266,7 @@ dev.off()
 png("Figures/Mendota_CH4vchlA.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
                         x="ChlA (RFU)",
-                        y="CH4 (uM)"),
+                        y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -284,7 +284,7 @@ dev.off()
 png("Figures/Mendota_CH4vfdom.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
                         x="fDOM (RFU)",
-                        y="CH4 (uM)"),
+                        y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -300,8 +300,8 @@ dev.off()
 
 png("Figures/Mendota_CH4vDO.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
-                        x="DO (%sat)",
-                        y="CH4 (uM)"),
+                        x=expression(paste(O[2], " (% saturation)")),
+                        y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -317,7 +317,7 @@ dev.off()
 
 png("Figures/Mendota_logCH4vDO.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
-                        x="DO (%sat)",
+                        x=expression(paste(O[2], " (% saturation)")),
                         y=expression(paste(log[10], ' ', CH[4], ' (', mu, 'M)'))),
                    theme_bw(),
                    theme(legend.position=c(0.85,0.25)))
@@ -332,11 +332,62 @@ ggplot(data=df,aes(x=ODOsat,y=log10(CH4uM_tau)))  +
   commonTheme
 dev.off()
 
+png("Figures/Mendota_logCH4vfdom.png", height=4, width=5, units="in", res=300)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x="fDOM (RFU)",
+                        y=expression(paste(log[10], ' ', CH[4], ' (', mu, 'M)'))),
+                   theme_bw(),
+                   theme(legend.position=c(0.75,0.25)))
+
+ggplot(data=df,aes(x=fDOMRFU,y=log10(CH4uM_tau)))  + 
+  ylim(-5,1.5) + 
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+dev.off()
+
+png("Figures/Mendota_logCH4vchlA.png", height=4, width=5, units="in", res=300)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x="Chl a (RFU)",
+                        y=expression(paste(log[10], ' ', CH[4], ' (', mu, 'M)'))),
+                   theme_bw(),
+                   theme(legend.position=c(0.75,0.25)))
+
+ggplot(data=df,aes(x=ChlARFU,y=log10(CH4uM_tau)))  + 
+  ylim(-5,1.5) + 
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+dev.off()
+
+png("Figures/Mendota_logCH4vBGA.png", height=4, width=5, units="in", res=300)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x="BGA (RFU)",
+                        y=expression(paste(log[10], ' ', CH[4], ' (', mu, 'M)'))),
+                   theme_bw(),
+                   theme(legend.position=c(0.75,0.25)))
+
+ggplot(data=df,aes(x=BGAPCRFU,y=log10(CH4uM_tau)))  + 
+  ylim(-5,1.5) + 
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  geom_point(alpha=0.04, colour="gray80") +
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+dev.off()
+
 
 png("Figures/Mendota_CH4vCO2.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
-                        x="CO2 (uM)",
-                        y="CH4 (uM)"),
+                        x=expression(paste(CO[2], " (", mu, "M)")),
+                        y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
@@ -370,8 +421,8 @@ abline(0,1, col="red")
 
 png("Figures/CO2obsvsDICmodelHeatPlot.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
-                        x="CO2 Measured (uM)",
-                        y="CO2 Calculated DIC-pH (uM)"),
+                        x=expression(paste(CO[2], " Measured (", mu, "M)")),
+                        y=expression(paste(CO[2], " Calculated DIC-pH (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.25)))
 
