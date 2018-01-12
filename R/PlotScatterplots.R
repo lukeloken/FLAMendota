@@ -483,6 +483,52 @@ legend('right', inset=0.01, c('1:1', 'Best fit'), col=c('black', rawcolors[1]), 
 
 dev.off()
 
+#Calculate theorteical CO2 concentrations
+length<-length(df$CO2guessDIC)
+phX<-seq(6.5,9.5, length.out=length)
+
+CO2_cold<-carb(flag=9, var1=phX, var2=MedDICmolKG, S=0.3, T=min(df$TempC, na.rm=T), warn='n', k1k2="m06", Patm=0.93)$CO2*1000000
+
+CO2_hot<-carb(flag=9, var1=phX, var2=MedDICmolKG, S=0.3, T=max(df$TempC, na.rm=T), warn='n', k1k2="m06", Patm=0.93)$CO2*1000000
+
+png("Figures/Mendota_logCO2vpHwithModel.png", height=4, width=5, units="in", res=300)
+commonTheme = list(labs(color="Density",fill="Density",
+                        x="pH",
+                        # y="log10 CO2 (uM)")))
+                        y=expression(paste(log[10], ' ', CO[2], ' (', mu, 'M)', sep=''))),
+                        # y=expression(paste(CO[2], ' (', mu, 'M)', sep=''))),
+                   theme_bw(),
+                   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                    panel.background = element_blank(), axis.line = element_line(colour = "black")),
+                   theme(legend.position=c(0.1,0.25)))
+
+ggplot(data=df,aes(x=pH_tau,y=log10(CO2uM_tau))) + 
+  # ylim(0.5,2.5) +
+  scale_y_continuous(limits = c(0.5,2.5), expand = c(0, 0)) +
+  scale_x_continuous(limits = c(min(df$pH_tau, na.rm=T), max(df$pH_tau, na.rm=T)), expand = c(0, 0)) +
+  
+  # geom_line(aes(x=phX, y = log10(CO2_hot)), colour = "red") +
+  # geom_line(aes(x=phX, y = log10(CO2_cold)), colour = "blue") +
+  # geom_ribbon(aes(x=phX, ymin=log10(CO2_hot),ymax=log10(CO2_cold)), fill="pink", alpha="0.5") +
+  geom_ribbon(aes(x=phX, ymin=0.5,ymax=log10(CO2_cold)), fill="lightpink") +
+  geom_ribbon(aes(x=phX, ymin=log10(CO2_hot),ymax=2.5), fill="lightpink") +
+  geom_ribbon(aes(x=phX, ymin=0.5,ymax=log10(CO2_hot)), fill="white") +
+  geom_ribbon(aes(x=phX, ymin=log10(CO2_cold),ymax=2.5), fill="white") +
+
+  geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
+  # geom_ribbon(data=phX, aes(ymin=CO2_hot,ymax=CO2_cold), fill="blue", alpha="0.5") +
+  # geom_line(aes(x=phX, y = log10(CO2_hot)), colour = "red") +
+  # geom_line(aes(x=phX, y = log10(CO2_cold)), colour = "blue") +
+  geom_point(alpha=0.1, colour="gray80") +
+  # geom_point(data=df, aes(x=pH, y=log10(CO2guessDIC)), alpha=0.1, colour = "green") +
+
+  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
+  scale_fill_continuous(low="purple4",high="cyan") +
+  guides(alpha="none") +
+  commonTheme
+dev.off()
+
+
 #Old code
 
 stat_density_2d
