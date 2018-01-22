@@ -35,6 +35,9 @@ for (dir in directories_ME2016){
 ME_data$DateTime<-as.POSIXct(ME_data$DateTime, tz="UTC")
 ME_data$Date<-as.Date(ME_data$DateTime, tz="UTC")
 
+plot(ME_data$DateTime, ME_data$XCO2Dppm, type='o')
+plot(ME_data$DateTime, ME_data$XCH4Dppm, type='o')
+
 # Save to Git folder
 saveRDS(ME_data, file='Data/FlameBuoyAtmMeasurements.rds')
 write.table(ME_data, file='Data/FlameBuoyAtmMeasurements.csv')
