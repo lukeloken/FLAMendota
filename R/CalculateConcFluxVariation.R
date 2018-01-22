@@ -121,7 +121,7 @@ length(which(ConcArray[,,c('CH4St_t')]<100))/length(ConcArray[,,c('CO2St_t')])
 tableout[3,c('spatialmean_sat')]<-mean(meanCH4Sat)
 tableout[3,c('spatialmin_sat')]<-min(minCH4Sat)
 tableout[3,c('spatialmax_sat')]<-max(maxCH4Sat)
-tableout[3,c('perundersat')]<-length(which(ConcArray[,,c('CH4St_t')]<100))/length(ConcArray[,,c('CO2St_t')])
+tableout[3,c('perundersat')]<-length(which(ConcArray[,,c('CH4St_t')]<100))/length(ConcArray[,,c('CH4St_t')])
 
 
 #Flux
