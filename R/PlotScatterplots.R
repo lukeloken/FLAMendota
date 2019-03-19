@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(grid)
 library(gridExtra)
+library(ggpubr)
 
 source('R/AddAlpha.R')
 source('R/CalculateCarbonSpecies.R')
@@ -147,23 +148,23 @@ colors=add.alpha(rawcolors, 0.05)
 
 colfunc<-colorRampPalette(c('grey90', "cyan", "darkorchid3"))
 
-
-baseplot<- ggplot(df,aes(x=ODOsat_tau,y=CO2Sat_tau)) + theme_bw() + ylim( low=0, high=1000)
-
-baseplot + stat_bin2d(bins=200) + scale_fill_gradientn(colours=colfunc(10))
-
-baseplot + stat_density_2d(aes(fill = ..level..), geom = "polygon")
-
-
-
-baseplot +   geom_point(colour=colors[3]) + 
-  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA) + 
-  scale_fill_continuous(low="purple4",high="orangered2") +
-  # geom_smooth(method=lm,linetype=1,colour="red",se=F) + 
-  geom_abline(slope=-1, intercept=200, colour='black', linetype=2) + 
-  guides(alpha="none") +
-  theme_bw()
-
+# 
+# baseplot<- ggplot(df,aes(x=ODOsat_tau,y=CO2Sat_tau)) + theme_bw() + ylim( low=0, high=1000)
+# 
+# baseplot + stat_bin2d(bins=200) + scale_fill_gradientn(colours=colfunc(10))
+# 
+# baseplot + stat_density_2d(aes(fill = ..level..), geom = "polygon")
+# 
+# 
+# 
+# baseplot +   geom_point(colour=colors[3]) + 
+#   stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA) + 
+#   scale_fill_continuous(low="purple4",high="orangered2") +
+#   # geom_smooth(method=lm,linetype=1,colour="red",se=F) + 
+#   geom_abline(slope=-1, intercept=200, colour='black', linetype=2) + 
+#   guides(alpha="none") +
+#   theme_bw()
+# 
 
 
 png("Figures/Mendota_CO2vO2.png", height=4, width=5, units="in", res=300)
@@ -172,6 +173,13 @@ commonTheme = list(labs(color="Density",fill="Density",
                         y=expression(paste(CO[2], " (% saturation)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
+
+O2model<-lm(df$CO2Sat_tau~df$ODOsat_tau)
+summary(O2model)
+
+r2<-round(summary(O2model)$r.squared,2)
+p<-summary(O2model)$coefficients[2,4]
+
 
 ggplot(data=df,aes(x=ODOsat_tau,y=CO2Sat_tau))  + 
   ylim( low=0, high=1000) +
@@ -183,12 +191,12 @@ ggplot(data=df,aes(x=ODOsat_tau,y=CO2Sat_tau))  +
   stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour=NA, size=0.1) +
   scale_fill_continuous(low="purple4",high="cyan") +
   guides(alpha="none") +
+  geom_text(aes(x = (-Inf), y = (Inf), vjust=1, hjust=0, label = paste0("r2 = ", r2)), size = 10, color='black') +
   commonTheme
 
 dev.off()
 
-O2model<-lm(df$CO2Sat_tau~df$ODOsat_tau)
-summary(O2model)
+
 
 png("Figures/Mendota_logCO2vpH.png", height=4, width=5, units="in", res=300)
 commonTheme = list(labs(color="Density",fill="Density",
@@ -197,6 +205,13 @@ commonTheme = list(labs(color="Density",fill="Density",
                         y=expression(paste(log[10], ' ', CO[2], ' (', mu, 'M)', sep=''))),
                    theme_bw(),
                    theme(legend.position=c(0.1,0.25)))
+
+pHmodel<-lm(log10(df$CO2uM_tau)~df$pH_tau)
+summary(pHmodel)
+
+r2<-round(summary(pHmodel)$r.squared,2)
+p<-summary(pHmodel)$coefficients[2,4]
+
 
 ggplot(data=df,aes(x=pH_tau,y=log10(CO2uM_tau)))  + 
   ylim(0.5,2.5) + 
@@ -253,6 +268,13 @@ commonTheme = list(labs(color="Density",fill="Density",
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
+lm_model<-lm(df$CH4uM_tau~df$BGAPCRFU)
+summary(lm_model)
+
+r2<-round(summary(lm_model)$r.squared,2)
+p<-summary(lm_model)$coefficients[2,4]
+
+
 ggplot(data=df,aes(x=BGAPCRFU,y=CH4uM_tau))  + 
   ylim(0,15) + 
   geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
@@ -269,6 +291,12 @@ commonTheme = list(labs(color="Density",fill="Density",
                         y=expression(paste(CH[4], " (", mu, "M)"))),
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
+
+lm_model<-lm(df$CH4uM_tau~df$ChlARFU)
+summary(lm_model)
+
+r2<-round(summary(lm_model)$r.squared,2)
+p<-summary(lm_model)$coefficients[2,4]
 
 ggplot(data=df,aes(x=ChlARFU,y=CH4uM_tau))  + 
   ylim(0,15) + 
@@ -288,6 +316,13 @@ commonTheme = list(labs(color="Density",fill="Density",
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
+lm_model<-lm(df$CH4uM_tau~df$fDOMRFU)
+summary(lm_model)
+
+r2<-round(summary(lm_model)$r.squared,2)
+p<-summary(lm_model)$coefficients[2,4]
+
+
 ggplot(data=df,aes(x=fDOMRFU,y=CH4uM_tau))  + 
   ylim(0,15) + 
   geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
@@ -305,6 +340,13 @@ commonTheme = list(labs(color="Density",fill="Density",
                    theme_bw(),
                    theme(legend.position=c(0.75,0.75)))
 
+lm_model<-lm(df$CH4uM_tau~df$ODOsat)
+summary(lm_model)
+
+r2<-round(summary(lm_model)$r.squared,2)
+p<-summary(lm_model)$coefficients[2,4]
+
+
 ggplot(data=df,aes(x=ODOsat,y=CH4uM_tau))  + 
   ylim(0,15) + 
   geom_smooth(method=glm,linetype=2,colour="black",se=F, size=0.5) + 
@@ -321,6 +363,13 @@ commonTheme = list(labs(color="Density",fill="Density",
                         y=expression(paste(log[10], ' ', CH[4], ' (', mu, 'M)'))),
                    theme_bw(),
                    theme(legend.position=c(0.85,0.25)))
+
+lm_model<-lm(log10(df$CH4uM_tau)~df$ODOsat)
+summary(lm_model)
+
+r2<-round(summary(lm_model)$r.squared,2)
+p<-summary(lm_model)$coefficients[2,4]
+
 
 ggplot(data=df,aes(x=ODOsat,y=log10(CH4uM_tau)))  + 
   ylim(-5,1.5) + 
