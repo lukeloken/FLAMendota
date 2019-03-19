@@ -7,10 +7,12 @@
 
 # Load packages
 library(gtools)
+library(sp)
+library(rgdal)
 
 #### Merge all spatial summaries ####
 
-data_dir<-"E:/Dropbox/FLAME_YaharaLakes/Data"
+data_dir<-"C:/Dropbox/FLAME_YaharaLakes/Data"
 
 dates<-list.files(data_dir)
 dates2016<-dates[grep('2016', dates)]
