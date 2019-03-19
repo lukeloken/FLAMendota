@@ -238,6 +238,11 @@ CO2PerDiff<-100*abs((BuoyFlux$CO2Buoy_Flux_Mean-LakeFlux$CO2_Flux_Mean)/rowMeans
 summary(CO2PerDiff)
 summary(CH4PerDiff)
 
+hist(CO2PerDiff)
+hist(CH4PerDiff)
+
+
+
 summary(BuoyFlux$CO2Buoy_Flux_Mean)
 summary(BuoyFlux$CH4Buoy_Flux_Mean)
 
