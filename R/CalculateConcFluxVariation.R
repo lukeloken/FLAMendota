@@ -62,10 +62,11 @@ tableout$cumfluxerror<-NA
 
 
 sdCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,sd) 
+medianCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,median) 
 meanCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,mean)
 minCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,min)
 maxCO2conc<-apply(ConcArray[,,'CO2uM_t'],1,max)
-summary(data.frame(minCO2conc, meanCO2conc, maxCO2conc))
+summary(data.frame(minCO2conc, meanCO2conc, medianCO2conc, maxCO2conc))
 
 Q5CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.05)
 Q95CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.95)
@@ -82,9 +83,10 @@ Q75CO2<-apply(ConcArray[,,'CO2uM_t'],1,quantile, probs=0.75)
 mean(Q75CO2-Q25CO2)
 
 meanCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,mean) 
+medianCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,median) 
 maxCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,max) 
 minCO2Sat<-apply(ConcArray[,,c('CO2St_t')],1,min) 
-summary(data.frame(minCO2Sat, meanCO2Sat, maxCO2Sat))
+summary(data.frame(minCO2Sat, meanCO2Sat, maxCO2Sat, medianCO2Sat))
 
 tableout[1,c('spatialmean_sat')]<-mean(meanCO2Sat)
 tableout[1,c('spatialmin_sat')]<-min(minCO2Sat)
@@ -93,9 +95,10 @@ tableout[1,c('perundersat')]<-length(which(ConcArray[,,c('CO2St_t')]<100))/lengt
 
 sdCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,sd) 
 meanCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,mean)
+medianCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,median)
 minCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,min)
 maxCH4conc<-apply(ConcArray[,,'CH4uM_t'],1,max)
-summary(data.frame(minCH4conc, meanCH4conc, maxCH4conc))
+summary(data.frame(minCH4conc, meanCH4conc, medianCH4conc, maxCH4conc))
 
 Q5CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.05)
 Q95CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.95)
@@ -112,9 +115,10 @@ Q75CH4<-apply(ConcArray[,,'CH4uM_t'],1,quantile, probs=0.75)
 mean(Q75CH4-Q25CH4)
 
 meanCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,mean) 
+medianCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,median) 
 maxCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,max) 
 minCH4Sat<-apply(ConcArray[,,c('CH4St_t')],1,min) 
-summary(data.frame(minCH4Sat, meanCH4Sat, maxCH4Sat))
+summary(data.frame(minCH4Sat, meanCH4Sat, medianCH4Sat, maxCH4Sat))
 
 length(which(ConcArray[,,c('CH4St_t')]<100))/length(ConcArray[,,c('CO2St_t')])
 
@@ -128,6 +132,7 @@ tableout[3,c('perundersat')]<-length(which(ConcArray[,,c('CH4St_t')]<100))/lengt
 
 sdCO2flux<-apply(fluxmatrix[,,'CO2'],1,sd) 
 meanCO2flux<-apply(fluxmatrix[,,'CO2'],1,mean)
+medianCO2flux<-apply(fluxmatrix[,,'CO2'],1,median)
 minCO2flux<-apply(fluxmatrix[,,'CO2'],1,min)
 maxCO2flux<-apply(fluxmatrix[,,'CO2'],1,max)
 Q1CO2flux<-apply(fluxmatrix[,,'CO2'],1,quantile, probs=0.25)
@@ -140,7 +145,7 @@ Q5CO2flux<-apply(fluxmatrix[,,'CO2'],1,quantile, probs=0.05)
 Q95CO2flux<-apply(fluxmatrix[,,'CO2'],1,quantile, probs=0.95)
 mean(Q95CO2flux-Q5CO2flux)
 
-summary(data.frame(minCO2flux, meanCO2flux, maxCO2flux))
+summary(data.frame(minCO2flux, meanCO2flux, medianCO2flux, maxCO2flux))
 
 tableout[2,c('spatialmean')]<-mean(meanCO2flux)
 tableout[2,c('spatialmin')]<-min(minCO2flux)
@@ -151,6 +156,7 @@ tableout[2,c('perundersat')]<-length(which(fluxmatrix[,,'CO2']<0))/length(fluxma
 
 sdCH4flux<-apply(fluxmatrix[,,'CH4'],1,sd) 
 meanCH4flux<-apply(fluxmatrix[,,'CH4'],1,mean)
+medianCH4flux<-apply(fluxmatrix[,,'CH4'],1,median)
 minCH4flux<-apply(fluxmatrix[,,'CH4'],1,min)
 maxCH4flux<-apply(fluxmatrix[,,'CH4'],1,max)
 sumCH4flux<-apply(fluxmatrix[,,'CH4'],1,sum)
@@ -159,7 +165,7 @@ Q5CH4flux<-apply(fluxmatrix[,,'CH4'],1,quantile, probs=0.05)
 Q95CH4flux<-apply(fluxmatrix[,,'CH4'],1,quantile, probs=0.95)
 mean(Q95CH4flux-Q5CH4flux)
 
-summary(data.frame(minCH4flux, meanCH4flux, maxCH4flux))
+summary(data.frame(minCH4flux, meanCH4flux, medianCH4flux, maxCH4flux))
 
 tableout[4,c('spatialmean')]<-mean(meanCH4flux)
 tableout[4,c('spatialmin')]<-min(minCH4flux)
