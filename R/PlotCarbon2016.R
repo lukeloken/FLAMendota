@@ -3,15 +3,54 @@
 # ##########################################
 library(lubridate)
 library(stringr)
+library(dplyr)
 source('R/AddAlpha.R')
 source('R/CalculateGasSaturation.R')
-
+source('R/PlotErrorBar.R')
 # ################
 # Flame Buoy Data
 # ################
 
 # Get 'buoy' data from flame
 Buoy_data<-readRDS('Data/FlameBuoyMeasurements.rds')
+
+Buoy_data_spread <- Buoy_data %>%
+  dplyr::select(Date, DateTime, CH4uM, CO2uM, CH4Sat, CO2Sat) %>%
+  group_by(Date) %>%
+  summarize_all(funs(mean, sd, min, max)) %>%
+  mutate(
+    CO2diff = (CO2uM_max - CO2uM_min),
+    CH4diff = (CH4uM_max - CH4uM_min)
+  )
+
+png('Figures/BuoyPrePostCO2CH4.png', height=5, width=6, res=200, units='in', bg='white')
+
+par(pch=16)
+par(ps=10)
+par(mfrow=c(2,1))
+par(mar = c(1,3,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+par(oma=c(1.5,0,0,0))
+par(lend=2, lwd=2)
+
+plot(Buoy_data_spread$Date, Buoy_data_spread$CO2uM_mean, type='l', xlab='', ylab=expression(paste(CO[2], ' (', mu, 'M)', sep='')), col='darkgrey')
+# points(Buoy_data_spread$Date, Buoy_data_spread$CO2uM_min, col='red', type='l')
+# points(Buoy_data_spread$Date, Buoy_data_spread$CO2uM_max, col='blue', type='l')
+
+arrows(x0=Buoy_data_spread$Date, y0=Buoy_data_spread$CO2uM_min, x1=Buoy_data_spread$Date, y1=Buoy_data_spread$CO2uM_max, length=0.03, angle=90, code=3, col='black')
+
+plot(Buoy_data_spread$Date, Buoy_data_spread$CH4uM_mean, type='l', xlab='', ylab=expression(paste(CH[4], ' (', mu, 'M)', sep='')), col='darkgrey', ylim=range(c(Buoy_data_spread$CH4uM_min, Buoy_data_spread$CH4uM_max)), na.rm=T)
+# points(Buoy_data_spread$Date, Buoy_data_spread$CH4uM_min, col='red', type='l')
+# points(Buoy_data_spread$Date, Buoy_data_spread$CH4uM_max, col='blue', type='l')
+
+arrows(x0=Buoy_data_spread$Date, y0=Buoy_data_spread$CH4uM_min, x1=Buoy_data_spread$Date, y1=Buoy_data_spread$CH4uM_max, length=0.03, angle=90, code=3, col='black')
+
+
+legend('topleft', inset=0.02, c('Buoy mean', 'Buoy range'), lwd=2, col=c('darkgrey', 'black'), bty='n')
+
+
+
+dev.off()
+
 
 # Aggregate multiple buoy samples to a single value
 Buoy_daily = aggregate(Buoy_data, by=list(Buoy_data$Date), FUN=mean, na.rm=T)
@@ -36,6 +75,62 @@ DavidBuoy$DateTime<-as.POSIXct(paste(DavidBuoy$Date, str_pad(as.character(DavidB
 DavidBuoyDaily<-aggregate(DavidBuoy[,3:5], by=list(DavidBuoy$Date), FUN='mean', na.rm=T)
 names(DavidBuoyDaily)[1]<-'Date'
 DavidBuoyDaily$Date<-as.Date(DavidBuoyDaily$Date)
+
+
+DavidBuoyDaily_tidy <- DavidBuoy %>%
+  select(Date, CO2_ppm) %>%
+  group_by(Date) %>%
+  summarize_all(funs(mean, sd, median, mad, n())) %>%
+  filter(n>1200)
+
+DavidBuoy1Week<- DavidBuoy %>%
+  filter (Date >= as.Date('2016-07-01') & Date <= as.Date('2016-07-07'))
+
+DavidBuoy3Day<- DavidBuoy %>%
+  filter (Date >= as.Date('2016-07-04') & Date <= as.Date('2016-07-06'))
+attributes(DavidBuoy3Day$DateTime)$tzone<-'America/Chicago'
+
+DavidBuoy3Day_sept<- DavidBuoy %>%
+  filter (Date >= as.Date('2016-09-11') & Date <= as.Date('2016-09-13'))
+attributes(DavidBuoy3Day_sept$DateTime)$tzone<-'America/Chicago'
+
+
+png('Figures/BuoyExampleCO2Diel.png', height=3, width=8, res=200, units='in', bg='white')
+
+par(pch=16)
+par(ps=10)
+par(mfrow=c(1,2))
+par(mar = c(1.5,3,0.5,0.5),mgp=c(1.5,0.4,0),tck=-0.02)
+par(oma=c(1.5,0,0,0))
+par(lend=2, lwd=1)
+
+plot(DavidBuoy3Day$DateTime, DavidBuoy3Day$CO2_ppm, pch=20, xlab='', ylab='CO2 (ppm)', axes=F, col=turnercolors[1])
+lines(DavidBuoy3Day$DateTime, rollmean(DavidBuoy3Day$CO2_ppm, k=31, align='center', na.pad=T), col=turnercolors[2], lwd=2)
+axis.POSIXct(1, at=seq(from=as.POSIXct("2016-07-01"), to=as.POSIXct("2016-07-09"), by="12 hours"), format='%H:%M')
+
+axis.POSIXct(1, at=seq(from=as.POSIXct("2016-07-01 12:00"), to=as.POSIXct("2016-07-09 12:00"), by="24 hours"), format='%b-%d', line=1, tick=F, lty=0)
+
+axis(2)
+box(which='plot')
+
+#September
+plot(DavidBuoy3Day_sept$DateTime, DavidBuoy3Day_sept$CO2_ppm, pch=20, xlab='', ylab='CO2 (ppm)', axes=F, col=turnercolors[1])
+lines(DavidBuoy3Day_sept$DateTime, rollmean(DavidBuoy3Day_sept$CO2_ppm, k=31, align='center', na.pad=T), col=turnercolors[2], lwd=2)
+axis.POSIXct(1, at=seq(from=as.POSIXct("2016-09-01"), to=as.POSIXct("2016-09-20"), by="12 hours"), format='%H:%M')
+
+axis.POSIXct(1, at=seq(from=as.POSIXct("2016-09-01 12:00"), to=as.POSIXct("2016-09-30 12:00"), by="24 hours"), format='%b-%d', line=1, tick=F, lty=0)
+
+axis(2)
+box(which='plot')
+
+
+dev.off()
+
+
+
+DavidBuoy1Day<- DavidBuoy %>%
+  filter (Date >= as.Date('2016-08-04') & Date <= as.Date('2016-08-05'))
+
 
 # ##############################
 # Lake Flux Data
@@ -455,7 +550,8 @@ dev.off()
 # Carbon Dioxide (ppm)
 # Code plots a polygon of IQR across entire lake surface, mean, median, and buoy
 
-png('Figures/CarbonDioxidePPM2016.png', width=8, height=4, units='in', res=200, bg='white')
+png('Figures/CarbonDioxidePPM2016_2sd.png', width=8, height=4, units='in', res=200, bg='white')
+
 par(pch=16)
 par(ps=12)
 par(mfrow=c(1,1))
@@ -495,9 +591,13 @@ points(Buoy_daily$Date, Buoy_daily$XCO2Dppm_tau, type="o", col=colors[4], pch=16
 
 # legend('topleft', inset=0.01, c('Mean', 'Median', 'IQR', 'Flame at buoy', 'Daily mean buoy'), col=c(colors[1:4], 'black'), lty=c(1,1,1,2, 1), pch=c(-1,-1,-1,16, -1), lwd=c(2,2,15,1, 1), pt.cex=c(1,1,1,1, 1), bty="n")
 
-points(DavidBuoy$Date, DavidBuoy$CO2_ppm, type="p", pch=16, cex=.1, col=turnercolors[1])
-points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1, col=turnercolors[2])
+#Old way
+# points(DavidBuoy$Date, DavidBuoy$CO2_ppm, type="p", pch=16, cex=.1, col=turnercolors[1])
+# points(DavidBuoyDaily$Date, DavidBuoyDaily$CO2_ppm, type="l", lwd=1, col=turnercolors[2])
 
+#Tidy way
+error.bar(DavidBuoyDaily_tidy$Date, y=DavidBuoyDaily_tidy$mean, upper.y=DavidBuoyDaily_tidy$sd*2, col=turnercolors[1], length=0.02)
+points(DavidBuoyDaily_tidy$Date, DavidBuoyDaily_tidy$mean, type="l", lwd=1, col=turnercolors[2])
 
 
 usr<-par('usr')
@@ -512,14 +612,15 @@ polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[4],2), rep(box.y[2],2)), col=color
 polygon(x=c(box.x, rev(box.x)), y=c(rep(box.y[3],2), rep(box.y[3],2)), col=colors[2], border=colors[2], lwd=2)
 
 lines(x=box.x, y=rep(box.y[6], 2), lty=2, col=colors[4], type="l", pch=16, lwd=1.5)
-points(x=rep(mean(box.x),10), y=box.y[7]+yscale*0.2*seq(-1,1, length.out = 10), type='p', col=turnercolors[1], pch=16, cex=.1)
+arrows(x0=mean(box.x), x1=mean(box.x), y0=box.y[7]+yscale*0.2*(-1), y1=box.y[7]+yscale*0.2*(1), angle=90, length=0.02, code=3, col=turnercolors[1])
+# points(x=rep(mean(box.x),10), y=box.y[7]+yscale*0.2*seq(-1,1, length.out = 10), type='l', col=turnercolors[1], pch=16, cex=.1)
 lines(x=box.x, y=rep(box.y[7], 2), lty=1, type="l", col=turnercolors[2])
 
 points(x=mean(box.x), y=box.y[6], col=colors[4], type="p", pch=buoypch, cex=1.5)
 
 lines(x=box.x, y=rep(box.y[8], 2), lty=3, type="l")
 
-text(x=box.x[2], y=box.y, c(expression(paste(Q[95])),  expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'FLAMe at buoy', "Turner buoy sensor", "Atm"), pos=4)
+text(x=box.x[2], y=box.y, c(expression(paste(Q[95])),  expression(paste(Q[75])), expression(paste(Q[50])), expression(paste(Q[25])), expression(paste(Q[5])), 'FLAMe at buoy', expression(paste("Buoy continuous sensor (daily mean ", "\u00B1", " 2 sd)", sep='')), "Atm"), pos=4)
 
 box(which='plot')
 
