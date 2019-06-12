@@ -772,7 +772,7 @@ dev.off()
 
 #CO2
 
-png('Figures/CarbonDioxideMethaneFlux2016.png', width=6, height=5, units='in', res=400, bg='white')
+png('Figures/CarbonDioxideMethaneFlux2016.png', width=6, height=5, units='in', res=600, bg='white')
 par(pch=16)
 par(ps=10)
 par(mfrow=c(2,1))
@@ -1564,7 +1564,7 @@ for (gas in c('CO2', 'CH4')){
 
 
 #Cumulative Flux at each pixel 
-png('Figures/CumulativeCO2CH4Flux_bypixel.png', width=3.5, height=6, units='in', res=200, bg='white')
+png('Figures/CumulativeCO2CH4Flux_bypixel.png', width=3.5, height=6, units='in', res=600, bg='white')
 par(pch=16)
 par(ps=12)
 par(mfrow=c(2,1))
