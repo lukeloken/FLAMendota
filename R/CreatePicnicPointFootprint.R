@@ -123,6 +123,7 @@ plot(PP, add=T, col="cyan", pch=16, cex=1)
 #GoogleKey
 GoogleAPIkey<-unlist(read.delim("C:/Users/lcloken/Documents/Google/LokenAPIKey2.txt", stringsAsFactor=F, check.names = FALSE, header=F))
 
+register_google(key = as.character(GoogleAPIkey))
 
 #Download ggmap
 # gmap_Mendota<-get_googlemap(center=c(-89.41583, 43.0896), size=c(640, 640), zoom = 15, maptype = "satellite", key=GoogleAPIkey )
@@ -163,4 +164,49 @@ ggmap(gmap_Mendota) +
 
 
 dev.off()
+
+
+
+
+
+
+legend.df_2panel <- legend.df %>%
+  filter(group %in% c('d', 'e'))
+colors<-adjustcolor(brewer.pal(5, 'OrRd'), alpha=c(0.3))
+
+
+png("Figures/PicnicPointFootprint_80Max.png", res=600, width=6,height=6, units="in")
+
+ggmap(gmap_Mendota) + 
+  labs(x=expression(paste('Longitude (', degree, ')', sep='')) , y=expression(paste('Latitude (', degree, ')', sep=''))) +
+  geom_polygon(aes(x=long, y=lat), data=Poly80, fill=colors[2], col=NA) +
+  # geom_polygon(aes(x=long, y=lat), data=Poly60_h, fill=colors[2], col=NA) +
+  # geom_polygon(aes(x=long, y=lat), data=Poly40_h, fill=colors[3], col=NA) +
+  # geom_polygon(aes(x=long, y=lat), data=Poly20_h, fill=colors[4], col=NA) +
+  geom_polygon(aes(x=long, y=lat), data=PolyMax, fill=colors[5], col='black', size=0.2) +
+  geom_polygon(aes(x=long, y=lat), data=Poly80, fill=NA, col='black', size=0.2) +
+  # geom_polygon(aes(x=long, y=lat), data=Poly60, fill=NA, col='black', size=0.2) +
+  # geom_polygon(aes(x=long, y=lat), data=Poly40, fill=NA, col='black', size=0.2) +
+  # geom_polygon(aes(x=long, y=lat), data=Poly20, fill=NA, col='black', size=0.2) +
+  geom_point(aes(x=x, y=y), data=data.frame(PP), col='black', bg='orange', pch=21, size=4, stroke=1)  +
+  geom_point(aes(x=x, y=y), data=data.frame(PP), col='black', bg='orange', pch=21, size=2, stroke=1)  + 
+  geom_point(aes(x=x, y=y), data=data.frame(PP), col='black', pch=20, size=0.3, stroke=1)  + 
+  scale_fill_manual(values=colors[c(2,5)]) + 
+  geom_polygon(aes(x=x, y=y, fill=group), data=legend.df_2panel, colour='black') + 
+  annotate(geom="text", x=rep(mean(legend.x[1:2]), 2), y=(mean(legend.y[2:3])+seq(0.003,0.004, 0.001)), label=rev(c('Max', '80%')), size=3) +
+  # annotate(geom="text", x= -89.42, y=43.0935, label='80%', size=3) +
+  # annotate(geom="text", x= -89.42, y=43.0935, label='Max', size=3) +
+  theme(legend.position='none') + 
+  
+  
+  # geom_polygon(aes(x=long, y=lat), data=Mendota_Shoreline, fill=NA, col='black', lwd=3) + 
+  
+  #   scalebar(x.min=(-89.43), x.max=(-89.403), y.min=(43.098), y.max=(43.099), dist=0.5, dist_unit="km", transform=T, model="WGS84", height=0.5, st.size=4, st.dist=0.5, st.bottom=F, st.color='white')
+  
+  
+  scalebar(x.min=(-89.43), x.max=(-89.403), y.min=(43.081), y.max=(43.082), dist=0.5, dist_unit="km", transform=T, model="WGS84", height=0.5, st.size=3, st.dist=0.4, st.bottom=T, st.color='black', border.size=0.5)
+
+
+dev.off()
+
 
